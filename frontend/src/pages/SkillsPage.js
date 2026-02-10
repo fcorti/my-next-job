@@ -1,33 +1,167 @@
-import React from 'react';
-import { Box, Container, Heading, Text, VStack, Card, CardBody } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  Card,
+  CardBody,
+  Table,
+  TableContainer,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Badge,
+  HStack,
+} from '@chakra-ui/react';
+import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
+
+const API_BASE_URL = 'http://localhost:8000';
 
 function SkillsPage() {
+  const [jobRoles, setJobRoles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadJobRoles();
+  }, []);
+
+  const loadJobRoles = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/job-roles`);
+      if (!response.ok) {
+        throw new Error('Failed to load job roles');
+      }
+      const data = await response.json();
+      setJobRoles(data);
+      setError('');
+    } catch (err) {
+      setError('Failed to load job roles: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleActiveRole = async (roleId, currentStatus) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/job-roles/${roleId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: !currentStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update job role');
+      }
+
+      setError('');
+      loadJobRoles();
+    } catch (err) {
+      setError('Failed to update job role: ' + err.message);
+    }
+  };
+
   return (
     <Box minH="calc(100vh - 80px)" py={10} px={4}>
-      <Container maxW="container.sm">
-        <Card bg="white" borderRadius="lg" boxShadow="lg">
-          <CardBody textAlign="center" py={12}>
-            <VStack spacing={6}>
-              <Heading as="h1" size="xl" color="gray.800">
-                Skills & Experience
-              </Heading>
-              <Text fontSize="lg" color="gray.600">
-                This section is coming soon. You'll be able to document and showcase your professional skills and work experience here.
-              </Text>
-              <Box
-                p={8}
-                border="2px dashed"
-                borderColor="purple.300"
-                borderRadius="md"
-                bg="gray.50"
-              >
-                <Text fontSize="lg" color="gray.400">
-                  📋 Your skills and experience section
+      <Container maxW="container.lg">
+        <VStack spacing={6}>
+          <VStack spacing={2} textAlign="center" w="full">
+            <Heading as="h1" size="lg" color="white">
+              Skills & Experience
+            </Heading>
+            <Text color="white" opacity={0.9}>
+              Manage your job roles and professional profiles
+            </Text>
+          </VStack>
+
+          {error && (
+            <Alert status="error" borderRadius="md" w="full">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
+          <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
+            <CardBody>
+              {loading ? (
+                <Box textAlign="center" py={8}>
+                  <Spinner color="purple.500" />
+                </Box>
+              ) : jobRoles.length === 0 ? (
+                <Text textAlign="center" color="gray.500" py={8}>
+                  No job roles found. Create one to get started!
                 </Text>
-              </Box>
-            </VStack>
-          </CardBody>
-        </Card>
+              ) : (
+                <TableContainer>
+                  <Table variant="striped" colorScheme="gray">
+                    <Thead bg="gray.100">
+                      <Tr>
+                        <Th>Job Role</Th>
+                        <Th>CV File</Th>
+                        <Th>Status</Th>
+                        <Th isNumeric>Action</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {jobRoles.map((role) => (
+                        <Tr key={role.id}>
+                          <Td fontWeight="500" color="gray.800">
+                            {role.name}
+                          </Td>
+                          <Td color="blue.600">
+                            <HStack spacing={2}>
+                              <DownloadIcon />
+                              <Text fontSize="sm">{role.cv_filename}</Text>
+                            </HStack>
+                          </Td>
+                          <Td>
+                            {role.is_active ? (
+                              <Badge colorScheme="green" variant="solid">
+                                <CheckIcon mr={1} /> Active
+                              </Badge>
+                            ) : (
+                              <Badge colorScheme="gray">Inactive</Badge>
+                            )}
+                          </Td>
+                          <Td isNumeric>
+                            <Button
+                              size="sm"
+                              colorScheme={role.is_active ? 'green' : 'gray'}
+                              variant={role.is_active ? 'solid' : 'outline'}
+                              onClick={() => toggleActiveRole(role.id, role.is_active)}
+                            >
+                              {role.is_active ? 'Active' : 'Activate'}
+                            </Button>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="purple.500">
+            <CardBody>
+              <Heading size="sm" color="gray.800" mb={2}>
+                💡 About Job Roles
+              </Heading>
+              <Text color="gray.600" fontSize="sm">
+                Each job role represents a professional profile with associated skills, experience, and a CV document. You can manage multiple job roles and activate the one that best matches your target position. Only one role can be active at a time.
+              </Text>
+            </CardBody>
+          </Card>
+        </VStack>
       </Container>
     </Box>
   );
