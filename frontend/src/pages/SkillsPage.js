@@ -20,8 +20,9 @@ import {
   AlertIcon,
   Badge,
   HStack,
+  ButtonGroup,
 } from '@chakra-ui/react';
-import { CheckIcon, DownloadIcon } from '@chakra-ui/icons';
+import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -29,6 +30,7 @@ function SkillsPage() {
   const [jobRoles, setJobRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
 
   useEffect(() => {
     loadJobRoles();
@@ -70,6 +72,19 @@ function SkillsPage() {
     }
   };
 
+  const getSortedRoles = () => {
+    const sorted = [...jobRoles].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    return sorted;
+  };
+
+  const sortedRoles = getSortedRoles();
+
   return (
     <Box minH="calc(100vh - 80px)" py={10} px={4}>
       <Container maxW="container.lg">
@@ -101,52 +116,78 @@ function SkillsPage() {
                   No job roles found. Create one to get started!
                 </Text>
               ) : (
-                <TableContainer>
-                  <Table variant="striped" colorScheme="gray">
-                    <Thead bg="gray.100">
-                      <Tr>
-                        <Th>Job Role</Th>
-                        <Th>CV File</Th>
-                        <Th>Status</Th>
-                        <Th isNumeric>Action</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {jobRoles.map((role) => (
-                        <Tr key={role.id}>
-                          <Td fontWeight="500" color="gray.800">
-                            {role.name}
-                          </Td>
-                          <Td color="blue.600">
-                            <HStack spacing={2}>
-                              <DownloadIcon />
-                              <Text fontSize="sm">{role.cv_filename}</Text>
-                            </HStack>
-                          </Td>
-                          <Td>
-                            {role.is_active ? (
-                              <Badge colorScheme="green" variant="solid">
-                                <CheckIcon mr={1} /> Active
-                              </Badge>
-                            ) : (
-                              <Badge colorScheme="gray">Inactive</Badge>
-                            )}
-                          </Td>
-                          <Td isNumeric>
-                            <Button
-                              size="sm"
-                              colorScheme={role.is_active ? 'green' : 'gray'}
-                              variant={role.is_active ? 'solid' : 'outline'}
-                              onClick={() => toggleActiveRole(role.id, role.is_active)}
-                            >
-                              {role.is_active ? 'Active' : 'Activate'}
-                            </Button>
-                          </Td>
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between" align="center">
+                    <Text fontSize="sm" color="gray.600" fontWeight="500">
+                      Sort by Job Role Description:
+                    </Text>
+                    <ButtonGroup size="sm" isAttached variant="outline">
+                      <Button
+                        colorScheme="purple"
+                        variant={sortOrder === 'asc' ? 'solid' : 'outline'}
+                        onClick={() => setSortOrder('asc')}
+                        leftIcon={<ArrowUpIcon />}
+                      >
+                        A-Z
+                      </Button>
+                      <Button
+                        colorScheme="purple"
+                        variant={sortOrder === 'desc' ? 'solid' : 'outline'}
+                        onClick={() => setSortOrder('desc')}
+                        leftIcon={<ArrowDownIcon />}
+                      >
+                        Z-A
+                      </Button>
+                    </ButtonGroup>
+                  </HStack>
+
+                  <TableContainer>
+                    <Table variant="striped" colorScheme="gray">
+                      <Thead bg="gray.100">
+                        <Tr>
+                          <Th>Job Role</Th>
+                          <Th>CV File</Th>
+                          <Th>Status</Th>
+                          <Th isNumeric>Action</Th>
                         </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                      </Thead>
+                      <Tbody>
+                        {sortedRoles.map((role) => (
+                          <Tr key={role.id}>
+                            <Td fontWeight="500" color="gray.800">
+                              {role.name}
+                            </Td>
+                            <Td color="blue.600">
+                              <HStack spacing={2}>
+                                <DownloadIcon />
+                                <Text fontSize="sm">{role.cv_filename}</Text>
+                              </HStack>
+                            </Td>
+                            <Td>
+                              {role.is_active ? (
+                                <Badge colorScheme="green" variant="solid">
+                                  <CheckIcon mr={1} /> Active
+                                </Badge>
+                              ) : (
+                                <Badge colorScheme="gray">Inactive</Badge>
+                              )}
+                            </Td>
+                            <Td isNumeric>
+                              <Button
+                                size="sm"
+                                colorScheme={role.is_active ? 'green' : 'gray'}
+                                variant={role.is_active ? 'solid' : 'outline'}
+                                onClick={() => toggleActiveRole(role.id, role.is_active)}
+                              >
+                                {role.is_active ? 'Active' : 'Activate'}
+                              </Button>
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                </VStack>
               )}
             </CardBody>
           </Card>
