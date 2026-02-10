@@ -1,27 +1,68 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import './Navbar.css';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Flex,
+  Link,
+  Container,
+} from '@chakra-ui/react';
 
 function Navbar() {
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
-          My Next Job
-        </Link>
-        <div className="navbar-menu">
-          <Link to="/skills" className="nav-link">
-            1. Skills & Experience
+    <Box
+      bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      boxShadow="0 2px 8px rgba(0, 0, 0, 0.1)"
+      position="sticky"
+      top={0}
+      zIndex={100}
+    >
+      <Container maxW="container.lg">
+        <Flex justify="space-between" align="center" py={4} px={5}>
+          <Link
+            as={RouterLink}
+            to="/"
+            fontSize="1.5em"
+            fontWeight="700"
+            color="white"
+            _hover={{ opacity: 0.8, textDecoration: 'none' }}
+          >
+            My Next Job
           </Link>
-          <Link to="/opportunities" className="nav-link">
-            2. Find Opportunities
-          </Link>
-          <Link to="/pipeline" className="nav-link">
-            3. Manage Pipeline
-          </Link>
-        </div>
-      </div>
-    </nav>
+          <Flex gap={{ base: 2, md: 8 }} align="center" flexWrap={{ base: 'wrap', md: 'nowrap' }}>
+            <Link
+              as={RouterLink}
+              to="/skills"
+              color="white"
+              fontWeight="500"
+              fontSize={{ base: 'sm', md: 'md' }}
+              _hover={{ opacity: 0.8, textDecoration: 'none' }}
+            >
+              1. Skills & Experience
+            </Link>
+            <Link
+              as={RouterLink}
+              to="/opportunities"
+              color="white"
+              fontWeight="500"
+              fontSize={{ base: 'sm', md: 'md' }}
+              _hover={{ opacity: 0.8, textDecoration: 'none' }}
+            >
+              2. Find Opportunities
+            </Link>
+            <Link
+              as={RouterLink}
+              to="/pipeline"
+              color="white"
+              fontWeight="500"
+              fontSize={{ base: 'sm', md: 'md' }}
+              _hover={{ opacity: 0.8, textDecoration: 'none' }}
+            >
+              3. Manage Pipeline
+            </Link>
+          </Flex>
+        </Flex>
+      </Container>
+    </Box>
   );
 }
 

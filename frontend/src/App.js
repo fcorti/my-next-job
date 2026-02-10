@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Box } from '@chakra-ui/react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import SkillsPage from './pages/SkillsPage';
 import OpportunitiesPage from './pages/OpportunitiesPage';
 import PipelinePage from './pages/PipelinePage';
-import './App.css';
 
 function App() {
   return (
     <Router>
-      <div className="app">
+      <Box minH="100vh" bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -18,7 +18,7 @@ function App() {
           <Route path="/opportunities" element={<OpportunitiesPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
         </Routes>
-      </div>
+      </Box>
     </Router>
   );
 }

@@ -1,5 +1,12 @@
 import React from 'react';
-import './MessageItem.css';
+import {
+  Box,
+  Text,
+  Button,
+  HStack,
+  VStack,
+  Badge,
+} from '@chakra-ui/react';
 
 function MessageItem({ message, onDelete }) {
   const formatDate = (dateString) => {
@@ -7,21 +14,35 @@ function MessageItem({ message, onDelete }) {
   };
 
   return (
-    <div className="message-item">
-      <p>
-        <span className="message-id">#{message.id}</span>
-        {message.text}
-      </p>
-      <p className="message-time">Created: {formatDate(message.created_at)}</p>
-      <div className="message-actions">
-        <button
-          className="delete-btn"
+    <Box
+      bg="gray.50"
+      p={4}
+      borderRadius="md"
+      borderLeft="4px solid"
+      borderColor="purple.500"
+      w="full"
+      animation="slideIn 0.3s ease"
+    >
+      <VStack align="flex-start" spacing={2}>
+        <HStack>
+          <Badge colorScheme="purple">#{message.id}</Badge>
+          <Text color="gray.800" flex="1">
+            {message.text}
+          </Text>
+        </HStack>
+        <Text fontSize="sm" color="gray.500">
+          Created: {formatDate(message.created_at)}
+        </Text>
+        <Button
+          size="sm"
+          colorScheme="red"
+          variant="solid"
           onClick={() => onDelete(message.id)}
         >
           Delete
-        </button>
-      </div>
-    </div>
+        </Button>
+      </VStack>
+    </Box>
   );
 }
 

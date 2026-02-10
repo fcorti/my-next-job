@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  Spinner,
+  Card,
+  CardBody,
+  Alert,
+  AlertIcon,
+} from '@chakra-ui/react';
 import MessageForm from '../components/MessageForm';
 import MessageList from '../components/MessageList';
 import ServerStatus from '../components/ServerStatus';
-import './PipelinePage.css';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -93,29 +104,46 @@ function PipelinePage() {
   };
 
   return (
-    <div className="pipeline-page">
-      <div className="pipeline-container">
-        <div className="page-header">
-          <h1>Manage Your Pipeline</h1>
-          <p>Track and manage your job applications and opportunities</p>
-        </div>
+    <Box minH="calc(100vh - 80px)" py={10} px={4}>
+      <Container maxW="container.sm">
+        <VStack spacing={6}>
+          <VStack spacing={1} textAlign="center" w="full">
+            <Heading as="h1" size="lg" color="white">
+              Manage Your Pipeline
+            </Heading>
+            <Text color="white" opacity={0.9}>
+              Track and manage your job applications and opportunities
+            </Text>
+          </VStack>
 
-        <MessageForm onSubmit={handleCreateMessage} />
+          <MessageForm onSubmit={handleCreateMessage} />
 
-        {error && <div className="error-alert">{error}</div>}
-
-        <div className="card">
-          <h2>Your Applications</h2>
-          {loading ? (
-            <div className="loading">Loading...</div>
-          ) : (
-            <MessageList messages={messages} onDeleteMessage={handleDeleteMessage} />
+          {error && (
+            <Alert status="error" borderRadius="md">
+              <AlertIcon />
+              {error}
+            </Alert>
           )}
-        </div>
 
-        <ServerStatus online={serverOnline} message={statusMessage} />
-      </div>
-    </div>
+          <Card bg="white" w="full">
+            <CardBody>
+              <Heading size="md" mb={4} color="gray.800">
+                Your Applications
+              </Heading>
+              {loading ? (
+                <Box textAlign="center" py={8}>
+                  <Spinner color="purple.500" />
+                </Box>
+              ) : (
+                <MessageList messages={messages} onDeleteMessage={handleDeleteMessage} />
+              )}
+            </CardBody>
+          </Card>
+
+          <ServerStatus online={serverOnline} message={statusMessage} />
+        </VStack>
+      </Container>
+    </Box>
   );
 }
 

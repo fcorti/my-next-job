@@ -1,14 +1,18 @@
 import React from 'react';
+import { VStack, Text } from '@chakra-ui/react';
 import MessageItem from './MessageItem';
-import './MessageList.css';
 
 function MessageList({ messages, onDeleteMessage }) {
   if (messages.length === 0) {
-    return <div className="empty-state">No messages yet. Create one!</div>;
+    return (
+      <Text textAlign="center" color="gray.500" py={8}>
+        No messages yet. Create one!
+      </Text>
+    );
   }
 
   return (
-    <div className="messages-list">
+    <VStack spacing={3}>
       {messages.map((message) => (
         <MessageItem
           key={message.id}
@@ -16,7 +20,7 @@ function MessageList({ messages, onDeleteMessage }) {
           onDelete={onDeleteMessage}
         />
       ))}
-    </div>
+    </VStack>
   );
 }
 

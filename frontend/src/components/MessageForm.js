@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import './MessageForm.css';
+import {
+  Input,
+  Button,
+  HStack,
+  Card,
+  CardBody,
+  CardHeader,
+  Heading,
+} from '@chakra-ui/react';
 
 function MessageForm({ onSubmit }) {
   const [text, setText] = useState('');
@@ -13,21 +21,37 @@ function MessageForm({ onSubmit }) {
   };
 
   return (
-    <div className="card form-card">
-      <h2>Create a New Message</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Enter your message..."
-            required
-          />
-          <button type="submit">Send Message</button>
-        </div>
-      </form>
-    </div>
+    <Card bg="white" mb={5}>
+      <CardHeader>
+        <Heading size="md" color="gray.800">
+          Create a New Message
+        </Heading>
+      </CardHeader>
+      <CardBody>
+        <form onSubmit={handleSubmit}>
+          <HStack spacing={3} w="full">
+            <Input
+              type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Enter your message..."
+              required
+              bg="white"
+              focusBorderColor="purple.500"
+            />
+            <Button
+              type="submit"
+              bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+              color="white"
+              fontWeight="600"
+              _hover={{ boxShadow: 'md' }}
+            >
+              Send
+            </Button>
+          </HStack>
+        </form>
+      </CardBody>
+    </Card>
   );
 }
 
