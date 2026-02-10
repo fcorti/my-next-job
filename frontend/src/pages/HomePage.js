@@ -41,12 +41,12 @@ function HomePage() {
 
                 <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
                   {/* Step 1 */}
-                  <Card bg="linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
+                  <Card bg="linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
                     <CardBody textAlign="center">
                       <Box
                         w="50px"
                         h="50px"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         borderRadius="50%"
                         display="flex"
                         alignItems="center"
@@ -68,7 +68,7 @@ function HomePage() {
                       <Button
                         as={RouterLink}
                         to="/skills"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         color="white"
                         _hover={{ boxShadow: 'md' }}
                       >
@@ -78,12 +78,12 @@ function HomePage() {
                   </Card>
 
                   {/* Step 2 */}
-                  <Card bg="linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
+                  <Card bg="linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
                     <CardBody textAlign="center">
                       <Box
                         w="50px"
                         h="50px"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         borderRadius="50%"
                         display="flex"
                         alignItems="center"
@@ -105,7 +105,7 @@ function HomePage() {
                       <Button
                         as={RouterLink}
                         to="/opportunities"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         color="white"
                         _hover={{ boxShadow: 'md' }}
                       >
@@ -115,12 +115,12 @@ function HomePage() {
                   </Card>
 
                   {/* Step 3 */}
-                  <Card bg="linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
+                  <Card bg="linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%)" _hover={{ transform: 'translateY(-5px)', boxShadow: 'lg' }} transition="all 0.3s">
                     <CardBody textAlign="center">
                       <Box
                         w="50px"
                         h="50px"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         borderRadius="50%"
                         display="flex"
                         alignItems="center"
@@ -142,7 +142,7 @@ function HomePage() {
                       <Button
                         as={RouterLink}
                         to="/pipeline"
-                        bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
                         color="white"
                         _hover={{ boxShadow: 'md' }}
                       >
@@ -155,7 +155,7 @@ function HomePage() {
 
               <Divider my={4} />
 
-              <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="purple.500">
+              <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="#2D3748">
                 <CardHeader>
                   <Heading size="sm" color="gray.800">
                     How it works
@@ -164,19 +164,19 @@ function HomePage() {
                 <CardBody>
                   <List spacing={2}>
                     <ListItem>
-                      <ListIcon as={CheckCircleIcon} color="purple.500" />
+                      <ListIcon as={CheckCircleIcon} color="gray.800" />
                       <Text as="span">
                         <strong>Step 1:</strong> Build your professional profile with your skills and experience
                       </Text>
                     </ListItem>
                     <ListItem>
-                      <ListIcon as={CheckCircleIcon} color="purple.500" />
+                      <ListIcon as={CheckCircleIcon} color="gray.800" />
                       <Text as="span">
                         <strong>Step 2:</strong> Discover job opportunities that match your profile
                       </Text>
                     </ListItem>
                     <ListItem>
-                      <ListIcon as={CheckCircleIcon} color="purple.500" />
+                      <ListIcon as={CheckCircleIcon} color="gray.800" />
                       <Text as="span">
                         <strong>Step 3:</strong> Maintain and track your applications in one place
                       </Text>

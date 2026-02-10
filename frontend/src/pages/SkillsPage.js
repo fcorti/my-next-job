@@ -109,7 +109,7 @@ function SkillsPage() {
             <CardBody>
               {loading ? (
                 <Box textAlign="center" py={8}>
-                  <Spinner color="purple.500" />
+                  <Spinner color="gray.600" />
                 </Box>
               ) : jobRoles.length === 0 ? (
                 <Text textAlign="center" color="gray.500" py={8}>
@@ -123,7 +123,7 @@ function SkillsPage() {
                     </Text>
                     <ButtonGroup size="sm" isAttached variant="outline">
                       <Button
-                        colorScheme="purple"
+                        colorScheme="gray"
                         variant={sortOrder === 'asc' ? 'solid' : 'outline'}
                         onClick={() => setSortOrder('asc')}
                         leftIcon={<ArrowUpIcon />}
@@ -131,7 +131,7 @@ function SkillsPage() {
                         A-Z
                       </Button>
                       <Button
-                        colorScheme="purple"
+                        colorScheme="gray"
                         variant={sortOrder === 'desc' ? 'solid' : 'outline'}
                         onClick={() => setSortOrder('desc')}
                         leftIcon={<ArrowDownIcon />}
@@ -165,7 +165,7 @@ function SkillsPage() {
                             </Td>
                             <Td>
                               {role.is_active ? (
-                                <Badge colorScheme="green" variant="solid">
+                                <Badge colorScheme="gray" variant="solid">
                                   <CheckIcon mr={1} /> Active
                                 </Badge>
                               ) : (
@@ -175,7 +175,7 @@ function SkillsPage() {
                             <Td isNumeric>
                               <Button
                                 size="sm"
-                                colorScheme={role.is_active ? 'green' : 'gray'}
+                                colorScheme="gray"
                                 variant={role.is_active ? 'solid' : 'outline'}
                                 onClick={() => toggleActiveRole(role.id, role.is_active)}
                               >
@@ -192,7 +192,7 @@ function SkillsPage() {
             </CardBody>
           </Card>
 
-          <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="purple.500">
+          <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="#2D3748">
             <CardBody>
               <Heading size="sm" color="gray.800" mb={2}>
                 💡 About Job Roles

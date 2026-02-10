@@ -10,7 +10,7 @@ import {
 function Navbar() {
   return (
     <Box
-      bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
       boxShadow="0 2px 8px rgba(0, 0, 0, 0.1)"
       position="sticky"
       top={0}

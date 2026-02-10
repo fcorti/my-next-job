@@ -10,7 +10,7 @@ import PipelinePage from './pages/PipelinePage';
 function App() {
   return (
     <Router>
-      <Box minH="100vh" bg="linear-gradient(135deg, #667eea 0%, #764ba2 100%)">
+      <Box minH="100vh" bg="linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%)">
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
