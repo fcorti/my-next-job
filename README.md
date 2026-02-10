@@ -1,6 +1,6 @@
-# My Next Job Application - FastAPI + PostgreSQL + Docker
+# My Next Job
 
-A full-stack web application demonstrating FastAPI backend, PostgreSQL database, and Docker containerization.
+A full-stack web application demonstrating FastAPI backend, PostgreSQL database, and Docker containerization. What is the purpose of this app? Simple: Help in finding new job opportunities in a more automatic (or semi-automatic) way.
 
 ## Architecture
 
