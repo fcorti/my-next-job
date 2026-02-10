@@ -1,11 +1,15 @@
 # My Next Job
 
-A full-stack web application demonstrating FastAPI backend, PostgreSQL database, and Docker containerization. What is the purpose of this app? Simple: Help in finding new job opportunities in a more automatic (or semi-automatic) way.
+A full-stack web application to help manage your job search journey. The application guides you through three key steps in sequence:
+
+1. **Skills & Experience** - Build your professional profile
+2. **Find Opportunities** - Discover job opportunities
+3. **Manage Pipeline** - Track and manage your applications
 
 ## Architecture
 
 - **Backend**: FastAPI running on Python 3.11
-- **Frontend**: React 18 (modern SPA) with component-based architecture
+- **Frontend**: React 18 (modern SPA) with React Router for multi-page navigation
 - **Database**: PostgreSQL
 - **Containerization**: Docker & Docker Compose
 
@@ -21,22 +25,47 @@ my-next-job/
 │   │   └── models.py        # SQLAlchemy models
 │   ├── Dockerfile
 │   └── requirements.txt     # Python dependencies
-├── frontend-react/          # Modern React Frontend (active)
+├── frontend-react/          # React Frontend
 │   ├── public/
 │   │   └── index.html
 │   ├── src/
-│   │   ├── components/      # React components
+│   │   ├── components/      # Reusable React components
+│   │   ├── pages/           # Page components
+│   │   │   ├── HomePage.js      # Landing page (sequential workflow overview)
+│   │   │   ├── SkillsPage.js    # Step 1: Skills & Experience
+│   │   │   ├── OpportunitiesPage.js  # Step 2: Find Opportunities
+│   │   │   └── PipelinePage.js  # Step 3: Manage Pipeline (CRUD)
 │   │   ├── App.js
-│   │   ├── App.css
 │   │   └── index.js
 │   ├── Dockerfile
 │   ├── package.json
 │   └── .gitignore
-
 ├── docker-compose.yml
+├── LICENSE
 ├── .gitignore
 └── README.md
 ```
+
+## Application Flow
+
+The application guides users through a structured three-step job search process:
+
+**Step 1: Skills & Experience**
+- Route: `/skills`
+- Purpose: Build and showcase your professional profile
+- Status: Placeholder for future enhancements
+
+**Step 2: Find Opportunities**
+- Route: `/opportunities`
+- Purpose: Search and discover relevant job opportunities
+- Status: Placeholder for future enhancements
+
+**Step 3: Manage Pipeline**
+- Route: `/pipeline`
+- Purpose: Track and manage job applications
+- Features: Create, view, and delete application notes with timestamps
+
+Each step is accessible via the navigation bar at the top of the application, with numbered indicators (1, 2, 3) to show the sequential workflow.
 
 ## Prerequisites
 
