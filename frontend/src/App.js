@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import SkillsPage from './pages/SkillsPage';
+import ModifyJobRolePage from './pages/ModifyJobRolePage';
 import OpportunitiesPage from './pages/OpportunitiesPage';
 import PipelinePage from './pages/PipelinePage';
 
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/skills" element={<SkillsPage />} />
+          <Route path="/skills/:roleId/modify" element={<ModifyJobRolePage />} />
           <Route path="/opportunities" element={<OpportunitiesPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
         </Routes>

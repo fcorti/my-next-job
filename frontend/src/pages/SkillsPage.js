@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -28,11 +29,12 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
 } from '@chakra-ui/react';
-import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon, DeleteIcon } from '@chakra-ui/icons';
+import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 const API_BASE_URL = 'http://localhost:8000';
 
 function SkillsPage() {
+  const navigate = useNavigate();
   const [jobRoles, setJobRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -202,8 +204,8 @@ function SkillsPage() {
                               )}
                             </Td>
                             <Td isNumeric>
-                              {!role.is_active && (
-                                <HStack spacing={2}>
+                              <HStack spacing={2}>
+                                {!role.is_active && (
                                   <Button
                                     size="sm"
                                     colorScheme="gray"
@@ -212,6 +214,17 @@ function SkillsPage() {
                                   >
                                     Activate
                                   </Button>
+                                )}
+                                <Button
+                                  size="sm"
+                                  colorScheme="gray"
+                                  variant="outline"
+                                  leftIcon={<EditIcon />}
+                                  onClick={() => navigate(`/skills/${role.id}/modify`)}
+                                >
+                                  Modify
+                                </Button>
+                                {!role.is_active && (
                                   <Button
                                     size="sm"
                                     colorScheme="red"
@@ -221,8 +234,8 @@ function SkillsPage() {
                                   >
                                     Delete
                                   </Button>
-                                </HStack>
-                              )}
+                                )}
+                              </HStack>
                             </Td>
                           </Tr>
                         ))}
