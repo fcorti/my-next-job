@@ -52,8 +52,13 @@ The application guides users through a structured three-step job search process:
 
 **Step 1: Skills & Experience**
 - Route: `/skills`
-- Purpose: Build and showcase your professional profile
-- Status: Placeholder for future enhancements
+- Purpose: Manage and showcase your professional profiles
+- Features: 
+  - View all job roles in a table format
+  - Each role includes: name, CV file, and active status
+  - Activate/deactivate job roles with a single click
+  - Only one role can be active at a time
+- Status: ✅ Implemented with database persistence
 
 **Step 2: Find Opportunities**
 - Route: `/opportunities`
@@ -64,6 +69,7 @@ The application guides users through a structured three-step job search process:
 - Route: `/pipeline`
 - Purpose: Track and manage job applications
 - Features: Create, view, and delete application notes with timestamps
+- Status: ✅ Fully implemented
 
 Each step is accessible via the navigation bar at the top of the application, with numbered indicators (1, 2, 3) to show the sequential workflow.
 
@@ -150,7 +156,7 @@ Tables are automatically created on application startup.
 
 ### Database Schema
 
-The application uses a single table:
+The application uses two main tables:
 
 **Table: `messages`**
 | Column | Type | Description |
@@ -158,6 +164,17 @@ The application uses a single table:
 | `id` | INTEGER | Primary key, auto-incrementing |
 | `text` | VARCHAR(255) | Message content (required) |
 | `created_at` | TIMESTAMP | Creation timestamp with timezone (auto-set) |
+
+**Table: `job_roles`**
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | INTEGER | Primary key, auto-incrementing |
+| `name` | VARCHAR(255) | Job role name (unique identifier, required) |
+| `cv_filename` | VARCHAR(255) | CV file name/path (required) |
+| `is_active` | BOOLEAN | Active status flag (only one role can be active) |
+| `created_at` | TIMESTAMP | Creation timestamp with timezone (auto-set) |
+
+**Sample Data**: The `job_roles` table is automatically populated with 5 sample job roles on application startup: Senior Full Stack Developer, Backend Engineer, Frontend Developer, DevOps Engineer, and Data Engineer.
 
 ## pgAdmin - Database Management
 
