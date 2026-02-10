@@ -1,0 +1,11 @@
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
