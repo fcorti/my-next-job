@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -21,8 +21,14 @@ import {
   Badge,
   HStack,
   ButtonGroup,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from '@chakra-ui/react';
-import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
+import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon, DeleteIcon } from '@chakra-ui/icons';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -31,6 +37,8 @@ function SkillsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' or 'desc'
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const cancelRef = useRef();
 
   useEffect(() => {
     loadJobRoles();
@@ -72,6 +80,27 @@ function SkillsPage() {
     }
   };
 
+  const deleteRole = async () => {
+    if (!deleteConfirm) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/job-roles/${deleteConfirm}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete job role');
+      }
+
+      setError('');
+      setDeleteConfirm(null);
+      loadJobRoles();
+    } catch (err) {
+      setError('Failed to delete job role: ' + err.message);
+    }
+  };
+
   const getSortedRoles = () => {
     const sorted = [...jobRoles].sort((a, b) => {
       if (sortOrder === 'asc') {
@@ -90,10 +119,10 @@ function SkillsPage() {
       <Container maxW="container.lg">
         <VStack spacing={6}>
           <VStack spacing={2} textAlign="center" w="full">
-            <Heading as="h1" size="lg" color="white">
+            <Heading as="h1" size="lg" color="gray.800">
               Skills & Experience
             </Heading>
-            <Text color="white" opacity={0.9}>
+            <Text color="gray.700" opacity={0.9}>
               Manage your job roles and professional profiles
             </Text>
           </VStack>
@@ -173,14 +202,27 @@ function SkillsPage() {
                               )}
                             </Td>
                             <Td isNumeric>
-                              <Button
-                                size="sm"
-                                colorScheme="gray"
-                                variant={role.is_active ? 'solid' : 'outline'}
-                                onClick={() => toggleActiveRole(role.id, role.is_active)}
-                              >
-                                {role.is_active ? 'Active' : 'Activate'}
-                              </Button>
+                              {!role.is_active && (
+                                <HStack spacing={2}>
+                                  <Button
+                                    size="sm"
+                                    colorScheme="gray"
+                                    variant="outline"
+                                    onClick={() => toggleActiveRole(role.id, role.is_active)}
+                                  >
+                                    Activate
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    colorScheme="red"
+                                    variant="outline"
+                                    leftIcon={<DeleteIcon />}
+                                    onClick={() => setDeleteConfirm(role.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </HStack>
+                              )}
                             </Td>
                           </Tr>
                         ))}
@@ -202,6 +244,31 @@ function SkillsPage() {
               </Text>
             </CardBody>
           </Card>
+
+          <AlertDialog
+            isOpen={deleteConfirm !== null}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setDeleteConfirm(null)}
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Delete Job Role
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  Are you sure you want to delete this job role? This action cannot be undone.
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button ref={cancelRef} onClick={() => setDeleteConfirm(null)}>
+                    Cancel
+                  </Button>
+                  <Button colorScheme="red" onClick={deleteRole} ml={3}>
+                    Delete
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
         </VStack>
       </Container>
     </Box>
