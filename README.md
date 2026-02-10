@@ -159,6 +159,32 @@ The application uses a single table:
 | `text` | VARCHAR(255) | Message content (required) |
 | `created_at` | TIMESTAMP | Creation timestamp with timezone (auto-set) |
 
+## pgAdmin - Database Management
+
+pgAdmin 4 is included for easy PostgreSQL database management. 
+
+**Access pgAdmin:**
+- URL: http://localhost:5050
+- Email: `admin@example.com`
+- Password: `admin`
+
+### Auto-Registered Server
+
+The PostgreSQL server is automatically registered in pgAdmin on startup through the `pgadmin/servers.json` configuration file. This means:
+
+- ✅ **No manual server configuration needed** - the database connection is auto-loaded
+- ✅ **Persistent across rebuilds** - configuration survives container restarts
+- ✅ **Server name**: `my-next-job-db`
+- ✅ **Connection details**: Already configured to connect to the internal database
+
+**How it works:**
+- A `servers.json` file in the `pgadmin/` folder defines the server connection
+- This file is mounted into pgAdmin's configuration directory
+- On startup, pgAdmin automatically loads servers from this file
+- The configuration persists in the pgAdmin volume (`pgadmin_data`)
+
+You can immediately log in to pgAdmin and start browsing the database without any additional setup!
+
 ## Troubleshooting
 
 ### Port Already in Use
