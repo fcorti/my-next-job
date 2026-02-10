@@ -35,7 +35,7 @@ services:
       - my_next_job_network
 
   frontend:
-    build: ./frontend-react
+    build: ./frontend
     ports:
       - "3000:3000"
     depends_on:

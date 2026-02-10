@@ -25,7 +25,7 @@ my-next-job/
 │   │   └── models.py        # SQLAlchemy models
 │   ├── Dockerfile
 │   └── requirements.txt     # Python dependencies
-├── frontend-react/          # React Frontend
+├── frontend/                # React Frontend with multi-page routing
 │   ├── public/
 │   │   └── index.html
 │   ├── src/
