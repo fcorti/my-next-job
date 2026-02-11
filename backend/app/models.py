@@ -3,13 +3,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
-class Message(Base):
-    __tablename__ = "messages"
-
-    id = Column(Integer, primary_key=True, index=True)
-    text = Column(String(255), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
 class JobRole(Base):
     __tablename__ = "job_roles"
 
@@ -29,6 +22,8 @@ class JobOpportunity(Base):
     url = Column(String(2048), primary_key=True)
     job_role_id = Column(Integer, ForeignKey("job_roles.id", ondelete="CASCADE"), primary_key=True, nullable=False)
     score = Column(Integer, nullable=False, default=0)
+    status = Column(String(50), nullable=False, default="New")
+    last_update = Column(DateTime(timezone=True), server_default=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     job_role = relationship("JobRole", back_populates="opportunities")

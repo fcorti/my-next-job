@@ -28,6 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Select,
+  Checkbox,
 } from '@chakra-ui/react';
 import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
 
@@ -40,6 +42,11 @@ function OpportunitiesPage() {
   const [cleanConfirm, setCleanConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
+  const [updatingUrl, setUpdatingUrl] = useState(null);
+  const [statusFilters, setStatusFilters] = useState({
+    New: true,
+    Ignore: true,
+  });
   const cancelRef = useRef();
 
   useEffect(() => {
@@ -99,8 +106,37 @@ function OpportunitiesPage() {
     }
   };
 
-  const getSortedOpportunities = () => {
-    const sorted = [...opportunities].sort((a, b) => {
+  const updateOpportunityStatus = async (url, newStatus) => {
+    setUpdatingUrl(url);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/opportunities?url=${encodeURIComponent(url)}&status=${newStatus}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update opportunity status');
+      }
+
+      // Update the local state
+      const updatedOpportunities = opportunities.map((opp) =>
+        opp.url === url ? { ...opp, status: newStatus } : opp
+      );
+      setOpportunities(updatedOpportunities);
+      setError('');
+    } catch (err) {
+      setError('Failed to update opportunity: ' + err.message);
+    } finally {
+      setUpdatingUrl(null);
+    }
+  };
+
+  const getFilteredAndSortedOpportunities = () => {
+    // First filter by status
+    const filtered = opportunities.filter((opp) => statusFilters[opp.status]);
+    
+    // Then sort by URL
+    const sorted = [...filtered].sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.url.localeCompare(b.url);
       } else {
@@ -110,7 +146,14 @@ function OpportunitiesPage() {
     return sorted;
   };
 
-  const sortedOpportunities = getSortedOpportunities();
+  const toggleStatusFilter = (status) => {
+    setStatusFilters((prev) => ({
+      ...prev,
+      [status]: !prev[status],
+    }));
+  };
+
+  const filteredAndSortedOpportunities = getFilteredAndSortedOpportunities();
 
   return (
     <Box minH="calc(100vh - 80px)" py={10} px={4}>
@@ -177,45 +220,74 @@ function OpportunitiesPage() {
                     </Button>
                   </HStack>
 
+                  <HStack justify="space-between" align="center">
+                    <Text fontSize="sm" color="gray.600" fontWeight="500">
+                      Sort by URL:
+                    </Text>
+                    <ButtonGroup size="sm" isAttached variant="outline">
+                      <Button
+                        colorScheme="gray"
+                        variant={sortOrder === 'asc' ? 'solid' : 'outline'}
+                        onClick={() => setSortOrder('asc')}
+                        leftIcon={<ArrowUpIcon />}
+                      >
+                        A-Z
+                      </Button>
+                      <Button
+                        colorScheme="gray"
+                        variant={sortOrder === 'desc' ? 'solid' : 'outline'}
+                        onClick={() => setSortOrder('desc')}
+                        leftIcon={<ArrowDownIcon />}
+                      >
+                        Z-A
+                      </Button>
+                    </ButtonGroup>
+                  </HStack>
+
+                  <HStack justify="flex-start" align="center" spacing={6}>
+                    <Text fontSize="sm" color="gray.600" fontWeight="500">
+                      Filter by Status:
+                    </Text>
+                    <HStack spacing={4}>
+                      <Checkbox
+                        isChecked={statusFilters.New}
+                        onChange={() => toggleStatusFilter('New')}
+                        colorScheme="green"
+                      >
+                        <Text fontSize="sm" color="gray.700">New</Text>
+                      </Checkbox>
+                      <Checkbox
+                        isChecked={statusFilters.Ignore}
+                        onChange={() => toggleStatusFilter('Ignore')}
+                        colorScheme="red"
+                      >
+                        <Text fontSize="sm" color="gray.700">Ignore</Text>
+                      </Checkbox>
+                    </HStack>
+                  </HStack>
+
                   {opportunities.length === 0 ? (
                     <Text textAlign="center" color="gray.500" py={8}>
                       No opportunities found. Use the Search button to find matching jobs.
                     </Text>
+                  ) : filteredAndSortedOpportunities.length === 0 ? (
+                    <Text textAlign="center" color="gray.500" py={8}>
+                      No opportunities match the selected filters.
+                    </Text>
                   ) : (
                     <>
-                      <HStack justify="space-between" align="center">
-                        <Text fontSize="sm" color="gray.600" fontWeight="500">
-                          Sort by URL:
-                        </Text>
-                        <ButtonGroup size="sm" isAttached variant="outline">
-                          <Button
-                            colorScheme="gray"
-                            variant={sortOrder === 'asc' ? 'solid' : 'outline'}
-                            onClick={() => setSortOrder('asc')}
-                            leftIcon={<ArrowUpIcon />}
-                          >
-                            A-Z
-                          </Button>
-                          <Button
-                            colorScheme="gray"
-                            variant={sortOrder === 'desc' ? 'solid' : 'outline'}
-                            onClick={() => setSortOrder('desc')}
-                            leftIcon={<ArrowDownIcon />}
-                          >
-                            Z-A
-                          </Button>
-                        </ButtonGroup>
-                      </HStack>
                       <TableContainer>
                         <Table variant="striped" colorScheme="gray">
                           <Thead bg="gray.100">
                             <Tr>
                               <Th>URL</Th>
                               <Th isNumeric>Match Score</Th>
+                              <Th>Status</Th>
+                              <Th>Last Update</Th>
                             </Tr>
                           </Thead>
                           <Tbody>
-                            {sortedOpportunities.map((opp) => (
+                            {filteredAndSortedOpportunities.map((opp) => (
                               <Tr key={opp.url}>
                                 <Td>
                                   <Link
@@ -229,6 +301,34 @@ function OpportunitiesPage() {
                                 </Td>
                                 <Td isNumeric fontWeight="600" color="gray.800">
                                   {opp.score}
+                                </Td>
+                                <Td>
+                                  <Select
+                                    value={opp.status}
+                                    onChange={(e) => updateOpportunityStatus(opp.url, e.target.value)}
+                                    size="sm"
+                                    isDisabled={updatingUrl === opp.url}
+                                    borderColor={opp.status === 'New' ? 'green.300' : 'red.300'}
+                                    _focus={{
+                                      borderColor: '#2D3748',
+                                      boxShadow: '0 0 0 1px #2D3748',
+                                    }}
+                                  >
+                                    <option value="New">New</option>
+                                    <option value="Ignore">Ignore</option>
+                                  </Select>
+                                </Td>
+                                <Td fontSize="sm" color="gray.600">
+                                  {opp.last_update 
+                                    ? new Date(opp.last_update).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                      })
+                                    : 'N/A'
+                                  }
                                 </Td>
                               </Tr>
                             ))}

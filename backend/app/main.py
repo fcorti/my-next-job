@@ -10,9 +10,10 @@ from pathlib import Path
 import uuid
 import shutil
 from app.database import engine, Base, get_db
-from app.models import Message, JobRole, JobOpportunity, Watchlist
+from app.models import JobRole, JobOpportunity, Watchlist
 
 # Create tables
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="My Next Job API")
@@ -28,17 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-class MessageCreate(BaseModel):
-    text: str
-
-class MessageResponse(BaseModel):
-    id: int
-    text: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 class JobRoleCreate(BaseModel):
     name: str
@@ -63,11 +53,15 @@ class JobOpportunityCreate(BaseModel):
     url: str
     job_role_id: int
     score: int = 0
+    status: str = "New"
+    last_update: Optional[datetime] = None
 
 class JobOpportunityResponse(BaseModel):
     url: str
     job_role_id: int
     score: int
+    status: str
+    last_update: Optional[datetime] = None
     created_at: datetime
 
     class Config:
@@ -107,9 +101,9 @@ def init_sample_data(db: Session):
         active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
         if active_role:
             sample_opportunities = [
-                JobOpportunity(url="https://example.com/job/fullstack-dev-1", job_role_id=active_role.id, score=95),
-                JobOpportunity(url="https://example.com/job/fullstack-dev-2", job_role_id=active_role.id, score=88),
-                JobOpportunity(url="https://example.com/job/fullstack-senior-3", job_role_id=active_role.id, score=92),
+                JobOpportunity(url="https://example.com/job/fullstack-dev-1", job_role_id=active_role.id, score=95, status="New"),
+                JobOpportunity(url="https://example.com/job/fullstack-dev-2", job_role_id=active_role.id, score=88, status="New"),
+                JobOpportunity(url="https://example.com/job/fullstack-senior-3", job_role_id=active_role.id, score=92, status="New"),
             ]
             for opp in sample_opportunities:
                 db.add(opp)
@@ -140,36 +134,6 @@ def startup_event():
 @app.get("/")
 def read_root():
     return {"message": "My Next Job API is running!"}
-
-# Message endpoints
-@app.get("/messages", response_model=list[MessageResponse])
-def get_messages(db: Session = Depends(get_db)):
-    messages = db.query(Message).all()
-    return messages
-
-@app.post("/messages", response_model=MessageResponse)
-def create_message(message: MessageCreate, db: Session = Depends(get_db)):
-    db_message = Message(text=message.text)
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
-    return db_message
-
-@app.get("/messages/{message_id}", response_model=MessageResponse)
-def get_message(message_id: int, db: Session = Depends(get_db)):
-    message = db.query(Message).filter(Message.id == message_id).first()
-    if not message:
-        raise HTTPException(status_code=404, detail="Message not found")
-    return message
-
-@app.delete("/messages/{message_id}")
-def delete_message(message_id: int, db: Session = Depends(get_db)):
-    message = db.query(Message).filter(Message.id == message_id).first()
-    if not message:
-        raise HTTPException(status_code=404, detail="Message not found")
-    db.delete(message)
-    db.commit()
-    return {"message": "Message deleted successfully"}
 
 # Job Role endpoints
 @app.get("/job-roles", response_model=list[JobRoleResponse])
@@ -296,7 +260,7 @@ def create_opportunity(opp: JobOpportunityCreate, db: Session = Depends(get_db))
     if existing:
         raise HTTPException(status_code=400, detail="Opportunity already exists for this job role")
     
-    db_opp = JobOpportunity(url=opp.url, job_role_id=opp.job_role_id, score=opp.score)
+    db_opp = JobOpportunity(url=opp.url, job_role_id=opp.job_role_id, score=opp.score, status=opp.status, last_update=opp.last_update)
     db.add(db_opp)
     db.commit()
     db.refresh(db_opp)
@@ -312,6 +276,30 @@ def delete_all_opportunities(db: Session = Depends(get_db)):
     db.query(JobOpportunity).filter(JobOpportunity.job_role_id == active_role.id).delete()
     db.commit()
     return {"message": "All opportunities deleted successfully"}
+
+@app.put("/opportunities")
+def update_opportunity_status(url: str, status: str, db: Session = Depends(get_db)):
+    """Update the status of a job opportunity"""
+    if status not in ["New", "Ignore"]:
+        raise HTTPException(status_code=400, detail="Status must be either 'New' or 'Ignore'")
+    
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=400, detail="No active job role found")
+    
+    opportunity = db.query(JobOpportunity).filter(
+        JobOpportunity.url == url,
+        JobOpportunity.job_role_id == active_role.id
+    ).first()
+    
+    if not opportunity:
+        raise HTTPException(status_code=404, detail="Opportunity not found")
+    
+    opportunity.status = status
+    opportunity.last_update = datetime.now(datetime.now().astimezone().tzinfo)
+    db.commit()
+    db.refresh(opportunity)
+    return opportunity
 
 @app.get("/opportunities/active-role")
 def get_active_role(db: Session = Depends(get_db)):

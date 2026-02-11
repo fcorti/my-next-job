@@ -13,62 +13,50 @@ A full-stack web application to help manage your job search journey. The applica
 - **Database**: PostgreSQL
 - **Containerization**: Docker & Docker Compose
 
-## Project Structure
-
-```
-my-next-job/
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py          # FastAPI application
-│   │   ├── database.py      # Database configuration
-│   │   └── models.py        # SQLAlchemy models
-│   ├── Dockerfile
-│   └── requirements.txt     # Python dependencies
-├── frontend/                # React Frontend with multi-page routing
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── components/      # Reusable React components
-│   │   ├── pages/           # Page components
-│   │   │   ├── HomePage.js      # Landing page (sequential workflow overview)
-│   │   │   ├── SkillsPage.js    # Step 1: Skills & Experience
-│   │   │   ├── OpportunitiesPage.js  # Step 2: Find Opportunities
-│   │   │   └── PipelinePage.js  # Step 3: Manage Pipeline (CRUD)
-│   │   ├── App.js
-│   │   └── index.js
-│   ├── Dockerfile
-│   ├── package.json
-│   └── .gitignore
-├── docker-compose.yml
-├── LICENSE
-├── .gitignore
-└── README.md
-```
-
 ## Application Flow
 
 The application guides users through a structured three-step job search process:
 
 **Step 1: Skills & Experience**
 - Route: `/skills`
-- Purpose: Manage and showcase your professional profiles
+- Purpose: Manage your professional profiles and CVs
 - Features: 
-  - View all job roles in a table format
-  - Each role includes: name, CV file, and active status
-  - Activate/deactivate job roles with a single click
-  - Only one role can be active at a time
-- Status: ✅ Implemented with database persistence
+  - Add/modify job roles with unique names
+  - Upload CV files for each role
+  - Activate/deactivate roles (only one active at a time)
+  - Delete roles with confirmation dialog
+  - Sort roles alphabetically (A-Z / Z-A)
+  - Clean, responsive table layout
+- Status: ✅ Fully implemented
 
 **Step 2: Find Opportunities**
 - Route: `/opportunities`
-- Purpose: Search and discover relevant job opportunities
-- Status: Placeholder for future enhancements
+- Purpose: Search, filter, and manage job opportunities
+- Features:
+  - Display all opportunities with URL, match score, and status
+  - Filter opportunities by status (New/Ignore) with multi-select checkboxes
+  - Update opportunity status via dropdown menu
+  - Sort opportunities alphabetically (A-Z / Z-A)
+  - One-click clean all opportunities with confirmation
+  - Search functionality to find and add opportunities
+  - View active job role in use
+- Status: ✅ Fully implemented
 
 **Step 3: Manage Pipeline**
 - Route: `/pipeline`
-- Purpose: Track and manage job applications
-- Features: Create, view, and delete application notes with timestamps
+- Purpose: Track and manage your job application pipeline
+- Features: Template ready for custom pipeline management features
+- Status: ✅ Ready for implementation
+
+**Bonus Feature: Watchlist**
+- Route: `/watchlist`
+- Purpose: Keep track of interesting opportunities
+- Features:
+  - View all watchlist entries
+  - Modify watchlist entries
+  - Delete entries with confirmation
+  - Sort entries alphabetically (A-Z / Z-A)
+  - Track last visit date
 - Status: ✅ Fully implemented
 
 Each step is accessible via the navigation bar at the top of the application, with numbered indicators (1, 2, 3) to show the sequential workflow.
@@ -101,29 +89,22 @@ Each step is accessible via the navigation bar at the top of the application, wi
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
 
-## API Endpoints
-Modern React Frontend** with component-based architecture
-- ✅ **REST API** with CRUD operations for messages
-- ✅ **PostgreSQL Database** for persisting messages
-- ✅ **Web Frontend** with a clean, responsive UI
-- ✅ **Server Health Check** to verify connection
-- ✅ **Message Management** - Create, read, and delete messages
-- ✅ **Error Handling** with user-friendly messages
-- ✅ **CORS Enabled** for frontend-backend communication
-- ✅ **pgAdmin** for database management and visualization
-- ✅ **Docker Compose** for easy multi-container orchestration
+## Key Features
 
-The application includes:
-
-- ✅ **REST API** with CRUD operations for messages
-- ✅ **PostgreSQL Database** for persisting messages
-- ✅ **Web Frontend** with a clean, responsive UI
-- ✅ **Server Health Check** to verify connection
-- ✅ **Message Management** - Create, read, and delete messages
-- ✅ **Error Handling** with user-friendly messages
-- ✅ **CORS Enabled** for frontend-backend communication
-- ✅ **pgAdmin** for database management and visualization
-- ✅ **Docker Compose** for easy multi-container orchestration
+- ✅ **Modern React Frontend** with component-based architecture and responsive design
+- ✅ **REST API** with full CRUD operations for jobs, opportunities, and watchlist
+- ✅ **PostgreSQL Database** for persistent data storage
+- ✅ **Job Role Management** - Create, read, update, and delete job roles
+- ✅ **CV File Upload** - Attach and manage CV files for each role
+- ✅ **Opportunity Tracking** - Manage job opportunities with status and scoring
+- ✅ **Status Filtering** - Filter opportunities by status (New/Ignore)
+- ✅ **Watchlist Management** - Save and track interesting opportunities
+- ✅ **Smart Sorting** - Sort opportunities and watchlist entries alphabetically
+- ✅ **Confirmation Dialogs** - Prevent accidental deletions with user confirmations
+- ✅ **Error Handling** - User-friendly error messages and validation
+- ✅ **CORS Enabled** - Seamless frontend-backend communication
+- ✅ **pgAdmin** - Database management and visualization
+- ✅ **Docker Compose** - Easy multi-container orchestration and deployment
 
 ## Stopping the Application
 
@@ -145,36 +126,14 @@ The React frontend also runs in development mode with hot-reload. Changes to fil
 
 The backend runs in development mode with hot-reload. Changes to files in the `./backend` directory will automatically restart the server.
 
-## Database
+## Database Configuration
 
 PostgreSQL runs on `localhost:5432` with:
 - Username: `postgres`
 - Password: `postgres`
 - Database: `my_next_job_db`
 
-Tables are automatically created on application startup.
-
-### Database Schema
-
-The application uses two main tables:
-
-**Table: `messages`**
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER | Primary key, auto-incrementing |
-| `text` | VARCHAR(255) | Message content (required) |
-| `created_at` | TIMESTAMP | Creation timestamp with timezone (auto-set) |
-
-**Table: `job_roles`**
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER | Primary key, auto-incrementing |
-| `name` | VARCHAR(255) | Job role name (unique identifier, required) |
-| `cv_filename` | VARCHAR(255) | CV file name/path (required) |
-| `is_active` | BOOLEAN | Active status flag (only one role can be active) |
-| `created_at` | TIMESTAMP | Creation timestamp with timezone (auto-set) |
-
-**Sample Data**: The `job_roles` table is automatically populated with 5 sample job roles on application startup: Senior Full Stack Developer, Backend Engineer, Frontend Developer, DevOps Engineer, and Data Engineer.
+Database schema is automatically created and managed by SQLAlchemy ORM on application startup.
 
 ## pgAdmin - Database Management
 
