@@ -159,11 +159,7 @@ function SkillsPage() {
                 </VStack>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" align="center">
-                    <Text fontSize="sm" color="gray.600" fontWeight="500">
-                      Sort by Job Role Description:
-                    </Text>
-                    <HStack spacing={3}>
+                  <HStack justify="space-between" align="right">
                       <ButtonGroup size="sm" isAttached variant="outline">
                         <Button
                           colorScheme="gray"
@@ -190,7 +186,6 @@ function SkillsPage() {
                       >
                         Add Job Role
                       </Button>
-                    </HStack>
                   </HStack>
 
                   <TableContainer>

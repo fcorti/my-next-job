@@ -118,9 +118,11 @@ function OpportunitiesPage() {
         throw new Error('Failed to update opportunity status');
       }
 
-      // Update the local state
+      const updatedOpp = await response.json();
+
+      // Update the local state with the new status and last_update from the server
       const updatedOpportunities = opportunities.map((opp) =>
-        opp.url === url ? { ...opp, status: newStatus } : opp
+        opp.url === url ? { ...opp, status: updatedOpp.status, last_update: updatedOpp.last_update } : opp
       );
       setOpportunities(updatedOpportunities);
       setError('');
@@ -185,6 +187,33 @@ function OpportunitiesPage() {
             </Alert>
           )}
 
+          <HStack spacing={3} justify="flex-start" w="full">
+            <Button
+              size="sm"
+              colorScheme="gray"
+              variant="outline"
+              onClick={() => navigate('/opportunities/watchlist')}
+            >
+              Watchlist
+            </Button>
+            <Button
+              size="sm"
+              colorScheme="gray"
+              variant="outline"
+            >
+              Search
+            </Button>
+            <Button
+              size="sm"
+              colorScheme="gray"
+              variant="outline"
+              onClick={() => setCleanConfirm(true)}
+              isDisabled={opportunities.length === 0}
+            >
+              Clean
+            </Button>
+          </HStack>
+
           <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
             <CardBody>
               {loading ? (
@@ -193,37 +222,7 @@ function OpportunitiesPage() {
                 </Box>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack spacing={3} justify="flex-start">
-                    <Button
-                      size="sm"
-                      colorScheme="gray"
-                      variant="outline"
-                      onClick={() => navigate('/opportunities/watchlist')}
-                    >
-                      Watchlist
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="gray"
-                      variant="outline"
-                    >
-                      Search
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="gray"
-                      variant="outline"
-                      onClick={() => setCleanConfirm(true)}
-                      isDisabled={opportunities.length === 0}
-                    >
-                      Clean
-                    </Button>
-                  </HStack>
-
-                  <HStack justify="space-between" align="center">
-                    <Text fontSize="sm" color="gray.600" fontWeight="500">
-                      Sort by URL:
-                    </Text>
+                  <HStack justify="space-between" align="right">
                     <ButtonGroup size="sm" isAttached variant="outline">
                       <Button
                         colorScheme="gray"
@@ -242,6 +241,14 @@ function OpportunitiesPage() {
                         Z-A
                       </Button>
                     </ButtonGroup>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                      onClick={() => navigate('/opportunities/new')}
+                    >
+                      Add a Job Opportunity
+                    </Button>
                   </HStack>
 
                   <HStack justify="flex-start" align="center" spacing={6}>
@@ -339,6 +346,17 @@ function OpportunitiesPage() {
                   )}
                 </VStack>
               )}
+            </CardBody>
+          </Card>
+
+          <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="#2D3748">
+            <CardBody>
+              <Heading size="sm" color="gray.800" mb={2}>
+                💡 About Job Opportunities
+              </Heading>
+              <Text color="gray.600" fontSize="sm">
+                Each job opportunity represents a potential future job to consider, review, and manage as part of your search.
+              </Text>
             </CardBody>
           </Card>
 

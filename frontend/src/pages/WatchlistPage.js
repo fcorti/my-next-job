@@ -157,26 +157,19 @@ function WatchlistPage() {
             </Alert>
           )}
 
+          <HStack spacing={3} justify="flex-start" w="full">
+            <Button
+                size="sm"
+                colorScheme="gray"
+                variant="outline"
+                onClick={() => navigate('/opportunities')}
+            >
+                Back to Opportunities
+            </Button>
+          </HStack>
+
           <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
             <CardBody>
-              <HStack spacing={3} justify="flex-start" mb={4}>
-                <Button
-                  size="sm"
-                  colorScheme="gray"
-                  variant="outline"
-                  onClick={() => navigate('/opportunities')}
-                >
-                  Back to Opportunities
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="gray"
-                  variant="outline"
-                  onClick={() => navigate('/opportunities/watchlist/add')}
-                >
-                  Add Career Page
-                </Button>
-              </HStack>
               {loading ? (
                 <Box textAlign="center" py={8}>
                   <Spinner color="gray.600" />
@@ -187,10 +180,7 @@ function WatchlistPage() {
                 </Text>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" align="center">
-                    <Text fontSize="sm" color="gray.600" fontWeight="500">
-                      Sort by URL:
-                    </Text>
+                  <HStack justify="space-between" align="right">
                     <ButtonGroup size="sm" isAttached variant="outline">
                       <Button
                         colorScheme="gray"
@@ -209,6 +199,14 @@ function WatchlistPage() {
                         Z-A
                       </Button>
                     </ButtonGroup>
+                    <Button
+                     size="sm"
+                     colorScheme="gray"
+                     variant="outline"
+                     onClick={() => navigate('/opportunities/watchlist/add')}
+                    >
+                        Add Career Page
+                    </Button>
                   </HStack>
                   <TableContainer>
                   <Table variant="striped" colorScheme="gray">
