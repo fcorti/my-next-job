@@ -21,6 +21,7 @@ import {
   AlertIcon,
   Badge,
   HStack,
+  Link,
   ButtonGroup,
   AlertDialog,
   AlertDialogBody,
@@ -143,33 +144,55 @@ function SkillsPage() {
                   <Spinner color="gray.600" />
                 </Box>
               ) : jobRoles.length === 0 ? (
-                <Text textAlign="center" color="gray.500" py={8}>
-                  No job roles found. Create one to get started!
-                </Text>
+                <VStack spacing={4} align="stretch">
+                  <HStack justify="space-between" align="center">
+                    <Text textAlign="center" color="gray.600" py={8}>
+                      No job roles found. Create one to get started!
+                    </Text>
+                    <Button
+                      size="sm"
+                      bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
+                      color="white"
+                      onClick={() => navigate('/skills/new')}
+                    >
+                      Add Job Role
+                    </Button>
+                  </HStack>
+                </VStack>
               ) : (
                 <VStack spacing={4} align="stretch">
                   <HStack justify="space-between" align="center">
                     <Text fontSize="sm" color="gray.600" fontWeight="500">
                       Sort by Job Role Description:
                     </Text>
-                    <ButtonGroup size="sm" isAttached variant="outline">
+                    <HStack spacing={3}>
+                      <ButtonGroup size="sm" isAttached variant="outline">
+                        <Button
+                          colorScheme="gray"
+                          variant={sortOrder === 'asc' ? 'solid' : 'outline'}
+                          onClick={() => setSortOrder('asc')}
+                          leftIcon={<ArrowUpIcon />}
+                        >
+                          A-Z
+                        </Button>
+                        <Button
+                          colorScheme="gray"
+                          variant={sortOrder === 'desc' ? 'solid' : 'outline'}
+                          onClick={() => setSortOrder('desc')}
+                          leftIcon={<ArrowDownIcon />}
+                        >
+                          Z-A
+                        </Button>
+                      </ButtonGroup>
                       <Button
-                        colorScheme="gray"
-                        variant={sortOrder === 'asc' ? 'solid' : 'outline'}
-                        onClick={() => setSortOrder('asc')}
-                        leftIcon={<ArrowUpIcon />}
+                        size="sm"
+                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
+                        color="white"
+                        onClick={() => navigate('/skills/new')}
                       >
-                        A-Z
+                        Add Job Role
                       </Button>
-                      <Button
-                        colorScheme="gray"
-                        variant={sortOrder === 'desc' ? 'solid' : 'outline'}
-                        onClick={() => setSortOrder('desc')}
-                        leftIcon={<ArrowDownIcon />}
-                      >
-                        Z-A
-                      </Button>
-                    </ButtonGroup>
+                    </HStack>
                   </HStack>
 
                   <TableContainer>
@@ -188,11 +211,19 @@ function SkillsPage() {
                             <Td fontWeight="500" color="gray.800">
                               {role.name}
                             </Td>
-                            <Td color="blue.600">
-                              <HStack spacing={2}>
-                                <DownloadIcon />
-                                <Text fontSize="sm">{role.cv_filename}</Text>
-                              </HStack>
+                            <Td color="gray.700">
+                              <Link
+                                href={`${API_BASE_URL}/job-roles/${role.id}/cv`}
+                                download={role.cv_filename}
+                                _hover={{ textDecoration: 'underline' }}
+                              >
+                                <HStack spacing={2}>
+                                  <DownloadIcon />
+                                  <Text as="span" fontSize="sm">
+                                    {role.cv_filename}
+                                  </Text>
+                                </HStack>
+                              </Link>
                             </Td>
                             <Td>
                               {role.is_active ? (
