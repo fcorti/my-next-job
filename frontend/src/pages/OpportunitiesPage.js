@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -16,12 +16,20 @@ import {
   Th,
   Td,
   Button,
+  ButtonGroup,
   HStack,
   Spinner,
   Alert,
   AlertIcon,
   Link,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from '@chakra-ui/react';
+import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
 
 function OpportunitiesPage() {
   const navigate = useNavigate();
@@ -29,6 +37,10 @@ function OpportunitiesPage() {
   const [activeRole, setActiveRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cleanConfirm, setCleanConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [sortOrder, setSortOrder] = useState('asc');
+  const cancelRef = useRef();
 
   useEffect(() => {
     loadActiveRole();
@@ -64,6 +76,41 @@ function OpportunitiesPage() {
       setLoading(false);
     }
   };
+
+  const deleteAllOpportunities = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/opportunities`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete opportunities');
+      }
+
+      setOpportunities([]);
+      setError('');
+      setCleanConfirm(false);
+    } catch (err) {
+      setError('Failed to delete opportunities: ' + err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const getSortedOpportunities = () => {
+    const sorted = [...opportunities].sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.url.localeCompare(b.url);
+      } else {
+        return b.url.localeCompare(a.url);
+      }
+    });
+    return sorted;
+  };
+
+  const sortedOpportunities = getSortedOpportunities();
 
   return (
     <Box minH="calc(100vh - 80px)" py={10} px={4}>
@@ -123,6 +170,8 @@ function OpportunitiesPage() {
                       size="sm"
                       colorScheme="gray"
                       variant="outline"
+                      onClick={() => setCleanConfirm(true)}
+                      isDisabled={opportunities.length === 0}
                     >
                       Clean
                     </Button>
@@ -133,40 +182,90 @@ function OpportunitiesPage() {
                       No opportunities found. Use the Search button to find matching jobs.
                     </Text>
                   ) : (
-                    <TableContainer>
-                      <Table variant="striped" colorScheme="gray">
-                        <Thead bg="gray.100">
-                          <Tr>
-                            <Th>URL</Th>
-                            <Th isNumeric>Match Score</Th>
-                          </Tr>
-                        </Thead>
-                        <Tbody>
-                          {opportunities.map((opp) => (
-                            <Tr key={opp.url}>
-                              <Td>
-                                <Link
-                                  href={opp.url}
-                                  isExternal
-                                  color="blue.600"
-                                  _hover={{ textDecoration: 'underline' }}
-                                >
-                                  {opp.url}
-                                </Link>
-                              </Td>
-                              <Td isNumeric fontWeight="600" color="gray.800">
-                                {opp.score}
-                              </Td>
+                    <>
+                      <HStack justify="space-between" align="center">
+                        <Text fontSize="sm" color="gray.600" fontWeight="500">
+                          Sort by URL:
+                        </Text>
+                        <ButtonGroup size="sm" isAttached variant="outline">
+                          <Button
+                            colorScheme="gray"
+                            variant={sortOrder === 'asc' ? 'solid' : 'outline'}
+                            onClick={() => setSortOrder('asc')}
+                            leftIcon={<ArrowUpIcon />}
+                          >
+                            A-Z
+                          </Button>
+                          <Button
+                            colorScheme="gray"
+                            variant={sortOrder === 'desc' ? 'solid' : 'outline'}
+                            onClick={() => setSortOrder('desc')}
+                            leftIcon={<ArrowDownIcon />}
+                          >
+                            Z-A
+                          </Button>
+                        </ButtonGroup>
+                      </HStack>
+                      <TableContainer>
+                        <Table variant="striped" colorScheme="gray">
+                          <Thead bg="gray.100">
+                            <Tr>
+                              <Th>URL</Th>
+                              <Th isNumeric>Match Score</Th>
                             </Tr>
-                          ))}
-                        </Tbody>
-                      </Table>
-                    </TableContainer>
+                          </Thead>
+                          <Tbody>
+                            {sortedOpportunities.map((opp) => (
+                              <Tr key={opp.url}>
+                                <Td>
+                                  <Link
+                                    href={opp.url}
+                                    isExternal
+                                    color="blue.600"
+                                    _hover={{ textDecoration: 'underline' }}
+                                  >
+                                    {opp.url}
+                                  </Link>
+                                </Td>
+                                <Td isNumeric fontWeight="600" color="gray.800">
+                                  {opp.score}
+                                </Td>
+                              </Tr>
+                            ))}
+                          </Tbody>
+                        </Table>
+                      </TableContainer>
+                    </>
                   )}
                 </VStack>
               )}
             </CardBody>
           </Card>
+
+          <AlertDialog
+            isOpen={cleanConfirm}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setCleanConfirm(false)}
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Delete All Opportunities
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  Are you sure you want to delete all job opportunities? This action cannot be undone.
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button ref={cancelRef} onClick={() => setCleanConfirm(false)}>
+                    Cancel
+                  </Button>
+                  <Button colorScheme="red" onClick={deleteAllOpportunities} ml={3} isLoading={isDeleting} loadingText="Deleting...">
+                    Delete All
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
         </VStack>
       </Container>
     </Box>

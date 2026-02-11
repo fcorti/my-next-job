@@ -302,6 +302,17 @@ def create_opportunity(opp: JobOpportunityCreate, db: Session = Depends(get_db))
     db.refresh(db_opp)
     return db_opp
 
+@app.delete("/opportunities")
+def delete_all_opportunities(db: Session = Depends(get_db)):
+    """Delete all opportunities for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=400, detail="No active job role found")
+    
+    db.query(JobOpportunity).filter(JobOpportunity.job_role_id == active_role.id).delete()
+    db.commit()
+    return {"message": "All opportunities deleted successfully"}
+
 @app.get("/opportunities/active-role")
 def get_active_role(db: Session = Depends(get_db)):
     """Get the currently active job role"""
