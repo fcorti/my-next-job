@@ -32,8 +32,6 @@ import {
 } from '@chakra-ui/react';
 import { CheckIcon, DownloadIcon, ArrowUpIcon, ArrowDownIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
-const API_BASE_URL = 'http://localhost:8000';
-
 function SkillsPage() {
   const navigate = useNavigate();
   const [jobRoles, setJobRoles] = useState([]);
@@ -50,7 +48,7 @@ function SkillsPage() {
   const loadJobRoles = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/job-roles`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles`);
       if (!response.ok) {
         throw new Error('Failed to load job roles');
       }
@@ -66,7 +64,7 @@ function SkillsPage() {
 
   const toggleActiveRole = async (roleId, currentStatus) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/job-roles/${roleId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles/${roleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !currentStatus }),
@@ -87,7 +85,7 @@ function SkillsPage() {
     if (!deleteConfirm) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/job-roles/${deleteConfirm}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles/${deleteConfirm}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -186,8 +184,8 @@ function SkillsPage() {
                       </ButtonGroup>
                       <Button
                         size="sm"
-                        bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
-                        color="white"
+                        colorScheme="gray"
+                        variant="outline"
                         onClick={() => navigate('/skills/new')}
                       >
                         Add Job Role
@@ -213,7 +211,7 @@ function SkillsPage() {
                             </Td>
                             <Td color="gray.700">
                               <Link
-                                href={`${API_BASE_URL}/job-roles/${role.id}/cv`}
+                                href={`${process.env.REACT_APP_API_BASE_URL}/job-roles/${role.id}/cv`}
                                 download={role.cv_filename}
                                 _hover={{ textDecoration: 'underline' }}
                               >

@@ -15,8 +15,6 @@ import MessageForm from '../components/MessageForm';
 import MessageList from '../components/MessageList';
 import ServerStatus from '../components/ServerStatus';
 
-const API_BASE_URL = 'http://localhost:8000';
-
 function PipelinePage() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +29,7 @@ function PipelinePage() {
 
   const checkServerConnection = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/`);
       if (response.ok) {
         const data = await response.json();
         setServerOnline(true);
@@ -49,7 +47,7 @@ function PipelinePage() {
   const loadMessages = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/messages`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/messages`);
       if (!response.ok) {
         throw new Error('Failed to load messages');
       }
@@ -65,7 +63,7 @@ function PipelinePage() {
 
   const handleCreateMessage = async (text) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/messages`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -88,7 +86,7 @@ function PipelinePage() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/messages/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/messages/${id}`, {
         method: 'DELETE',
       });
 

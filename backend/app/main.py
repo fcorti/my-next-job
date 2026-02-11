@@ -5,11 +5,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 from pathlib import Path
 import uuid
 import shutil
 from app.database import engine, Base, get_db
-from app.models import Message, JobRole
+from app.models import Message, JobRole, JobOpportunity, Watchlist
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -58,6 +59,34 @@ class JobRoleResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class JobOpportunityCreate(BaseModel):
+    url: str
+    job_role_id: int
+    score: int = 0
+
+class JobOpportunityResponse(BaseModel):
+    url: str
+    job_role_id: int
+    score: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class WatchlistCreate(BaseModel):
+    url: str
+    job_role_id: int
+    last_visit: Optional[datetime] = None
+
+class WatchlistResponse(BaseModel):
+    url: str
+    job_role_id: int
+    last_visit: Optional[datetime] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # Initialize sample data
 def init_sample_data(db: Session):
     """Initialize database with sample job roles if table is empty"""
@@ -73,6 +102,28 @@ def init_sample_data(db: Session):
         for role in sample_roles:
             db.add(role)
         db.commit()
+
+        # Add sample opportunities for the active role
+        active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+        if active_role:
+            sample_opportunities = [
+                JobOpportunity(url="https://example.com/job/fullstack-dev-1", job_role_id=active_role.id, score=95),
+                JobOpportunity(url="https://example.com/job/fullstack-dev-2", job_role_id=active_role.id, score=88),
+                JobOpportunity(url="https://example.com/job/fullstack-senior-3", job_role_id=active_role.id, score=92),
+            ]
+            for opp in sample_opportunities:
+                db.add(opp)
+            db.commit()
+            
+            # Add sample watchlist for the active role
+            sample_watchlist = [
+                Watchlist(url="https://careers.google.com", job_role_id=active_role.id),
+                Watchlist(url="https://careers.microsoft.com", job_role_id=active_role.id),
+                Watchlist(url="https://www.linkedin.com/jobs", job_role_id=active_role.id),
+            ]
+            for watch in sample_watchlist:
+                db.add(watch)
+            db.commit()
 
 def ensure_job_role_storage_column(db: Session):
     db.execute(text("ALTER TABLE job_roles ADD COLUMN IF NOT EXISTS cv_storage_name VARCHAR(255)"))
@@ -223,6 +274,86 @@ def delete_job_role(role_id: int, db: Session = Depends(get_db)):
     db.delete(role)
     db.commit()
     return {"message": "Job role deleted successfully"}
+
+# Job Opportunity endpoints
+@app.get("/opportunities", response_model=list[JobOpportunityResponse])
+def get_opportunities(db: Session = Depends(get_db)):
+    """Get all opportunities for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        return []
+    opportunities = db.query(JobOpportunity).filter(JobOpportunity.job_role_id == active_role.id).all()
+    return opportunities
+
+@app.post("/opportunities", response_model=JobOpportunityResponse)
+def create_opportunity(opp: JobOpportunityCreate, db: Session = Depends(get_db)):
+    """Create a new job opportunity"""
+    # Check if opportunity already exists
+    existing = db.query(JobOpportunity).filter(
+        JobOpportunity.url == opp.url,
+        JobOpportunity.job_role_id == opp.job_role_id
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Opportunity already exists for this job role")
+    
+    db_opp = JobOpportunity(url=opp.url, job_role_id=opp.job_role_id, score=opp.score)
+    db.add(db_opp)
+    db.commit()
+    db.refresh(db_opp)
+    return db_opp
+
+@app.get("/opportunities/active-role")
+def get_active_role(db: Session = Depends(get_db)):
+    """Get the currently active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        return {"active_role": None}
+    return {"active_role": active_role.name, "id": active_role.id}
+
+# Watchlist endpoints
+@app.get("/watchlist", response_model=list[WatchlistResponse])
+def get_watchlist(db: Session = Depends(get_db)):
+    """Get all watchlist entries for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        return []
+    watchlist = db.query(Watchlist).filter(Watchlist.job_role_id == active_role.id).all()
+    return watchlist
+
+@app.post("/watchlist", response_model=WatchlistResponse)
+def create_watchlist_entry(watch: WatchlistCreate, db: Session = Depends(get_db)):
+    """Create a new watchlist entry"""
+    # Check if entry already exists
+    existing = db.query(Watchlist).filter(
+        Watchlist.url == watch.url,
+        Watchlist.job_role_id == watch.job_role_id
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Watchlist entry already exists for this job role")
+    
+    db_watch = Watchlist(url=watch.url, job_role_id=watch.job_role_id, last_visit=watch.last_visit)
+    db.add(db_watch)
+    db.commit()
+    db.refresh(db_watch)
+    return db_watch
+
+@app.delete("/watchlist")
+def delete_watchlist_entry(url: str, db: Session = Depends(get_db)):
+    """Delete a watchlist entry for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=404, detail="No active job role found")
+    
+    entry = db.query(Watchlist).filter(
+        Watchlist.url == url,
+        Watchlist.job_role_id == active_role.id
+    ).first()
+    if not entry:
+        raise HTTPException(status_code=404, detail="Watchlist entry not found")
+    
+    db.delete(entry)
+    db.commit()
+    return {"message": "Watchlist entry deleted successfully"}
 
 if __name__ == "__main__":
     import uvicorn

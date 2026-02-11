@@ -1,33 +1,173 @@
-import React from 'react';
-import { Box, Container, Heading, Text, VStack, Card, CardBody } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  VStack,
+  Card,
+  CardBody,
+  Table,
+  TableContainer,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  HStack,
+  Spinner,
+  Alert,
+  AlertIcon,
+  Link,
+} from '@chakra-ui/react';
 
 function OpportunitiesPage() {
+  const navigate = useNavigate();
+  const [opportunities, setOpportunities] = useState([]);
+  const [activeRole, setActiveRole] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadActiveRole();
+    loadOpportunities();
+  }, []);
+
+  const loadActiveRole = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/opportunities/active-role`);
+      if (!response.ok) {
+        throw new Error('Failed to load active role');
+      }
+      const data = await response.json();
+      setActiveRole(data.active_role);
+    } catch (err) {
+      setError('Failed to load active role: ' + err.message);
+    }
+  };
+
+  const loadOpportunities = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/opportunities`);
+      if (!response.ok) {
+        throw new Error('Failed to load opportunities');
+      }
+      const data = await response.json();
+      setOpportunities(data);
+      setError('');
+    } catch (err) {
+      setError('Failed to load opportunities: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box minH="calc(100vh - 80px)" py={10} px={4}>
-      <Container maxW="container.sm">
-        <Card bg="white" borderRadius="lg" boxShadow="lg">
-          <CardBody textAlign="center" py={12}>
-            <VStack spacing={6}>
-              <Heading as="h1" size="xl" color="gray.800">
-                Find Opportunities
-              </Heading>
-              <Text fontSize="lg" color="gray.600">
-                This section is coming soon. You'll be able to search and discover job opportunities that align with your skills and goals here.
-              </Text>
-              <Box
-                p={8}
-                border="2px dashed"
-                borderColor="purple.300"
-                borderRadius="md"
-                bg="gray.50"
-              >
-                <Text fontSize="lg" color="gray.400">
-                  🔍 Your job opportunities section
+      <Container maxW="container.lg">
+        <VStack spacing={6}>
+          <VStack spacing={2} textAlign="center" w="full">
+            <Heading as="h1" size="lg" color="gray.800">
+              Find Opportunities
+            </Heading>
+            <Text color="gray.700" opacity={0.9}>
+              Search and discover job opportunities that align with your skills and goals
+            </Text>
+          </VStack>
+
+          {activeRole && (
+            <Card bg="gray.50" w="full" borderLeft="4px solid" borderColor="#2D3748">
+              <CardBody>
+                <Text fontSize="sm" color="gray.600" fontWeight="500">
+                  Active Job Role: <Text as="span" fontWeight="700" color="gray.800">{activeRole}</Text>
                 </Text>
-              </Box>
-            </VStack>
-          </CardBody>
-        </Card>
+              </CardBody>
+            </Card>
+          )}
+
+          {error && (
+            <Alert status="error" borderRadius="md" w="full">
+              <AlertIcon />
+              {error}
+            </Alert>
+          )}
+
+          <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
+            <CardBody>
+              {loading ? (
+                <Box textAlign="center" py={8}>
+                  <Spinner color="gray.600" />
+                </Box>
+              ) : (
+                <VStack spacing={4} align="stretch">
+                  <HStack spacing={3} justify="flex-start">
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                      onClick={() => navigate('/opportunities/watchlist')}
+                    >
+                      Watchlist
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                    >
+                      Search
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                    >
+                      Clean
+                    </Button>
+                  </HStack>
+
+                  {opportunities.length === 0 ? (
+                    <Text textAlign="center" color="gray.500" py={8}>
+                      No opportunities found. Use the Search button to find matching jobs.
+                    </Text>
+                  ) : (
+                    <TableContainer>
+                      <Table variant="striped" colorScheme="gray">
+                        <Thead bg="gray.100">
+                          <Tr>
+                            <Th>URL</Th>
+                            <Th isNumeric>Match Score</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {opportunities.map((opp) => (
+                            <Tr key={opp.url}>
+                              <Td>
+                                <Link
+                                  href={opp.url}
+                                  isExternal
+                                  color="blue.600"
+                                  _hover={{ textDecoration: 'underline' }}
+                                >
+                                  {opp.url}
+                                </Link>
+                              </Td>
+                              <Td isNumeric fontWeight="600" color="gray.800">
+                                {opp.score}
+                              </Td>
+                            </Tr>
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </VStack>
+              )}
+            </CardBody>
+          </Card>
+        </VStack>
       </Container>
     </Box>
   );

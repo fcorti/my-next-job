@@ -17,8 +17,6 @@ import {
   AlertIcon,
 } from '@chakra-ui/react';
 
-const API_BASE_URL = 'http://localhost:8000';
-
 function AddJobRolePage() {
   const navigate = useNavigate();
   const [jobName, setJobName] = useState('');
@@ -48,7 +46,7 @@ function AddJobRolePage() {
       formData.append('name', jobName);
       formData.append('cv_file', cvFile);
 
-      const response = await fetch(`${API_BASE_URL}/job-roles`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles`, {
         method: 'POST',
         body: formData,
       });
@@ -154,8 +152,8 @@ function AddJobRolePage() {
                   </Button>
                   <Button
                     size="md"
-                    bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
-                    color="white"
+                    colorScheme="gray"
+                    variant="outline"
                     onClick={handleSave}
                     isLoading={saving}
                     loadingText="Saving..."

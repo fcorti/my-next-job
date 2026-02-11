@@ -7,6 +7,9 @@ import SkillsPage from './pages/SkillsPage';
 import AddJobRolePage from './pages/AddJobRolePage';
 import ModifyJobRolePage from './pages/ModifyJobRolePage';
 import OpportunitiesPage from './pages/OpportunitiesPage';
+import WatchlistPage from './pages/WatchlistPage';
+import AddCareerPagePage from './pages/AddCareerPagePage';
+import ModifyCareerPagePage from './pages/ModifyCareerPagePage';
 import PipelinePage from './pages/PipelinePage';
 
 function App() {
@@ -20,6 +23,9 @@ function App() {
           <Route path="/skills/new" element={<AddJobRolePage />} />
           <Route path="/skills/:roleId/modify" element={<ModifyJobRolePage />} />
           <Route path="/opportunities" element={<OpportunitiesPage />} />
+          <Route path="/opportunities/watchlist" element={<WatchlistPage />} />
+          <Route path="/opportunities/watchlist/add" element={<AddCareerPagePage />} />
+          <Route path="/opportunities/watchlist/modify/:url" element={<ModifyCareerPagePage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
         </Routes>
       </Box>

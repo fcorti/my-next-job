@@ -18,8 +18,6 @@ import {
   AlertIcon,
 } from '@chakra-ui/react';
 
-const API_BASE_URL = 'http://localhost:8000';
-
 function ModifyJobRolePage() {
   const { roleId } = useParams();
   const navigate = useNavigate();
@@ -36,7 +34,7 @@ function ModifyJobRolePage() {
   const loadJobRole = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/job-roles/${roleId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles/${roleId}`);
       if (!response.ok) {
         throw new Error('Failed to load job role');
       }
@@ -59,7 +57,7 @@ function ModifyJobRolePage() {
 
     setSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/job-roles/${roleId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/job-roles/${roleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: jobName }),
@@ -142,8 +140,8 @@ function ModifyJobRolePage() {
                   </Button>
                   <Button
                     size="md"
-                    bg="linear-gradient(135deg, #2D3748 0%, #1A202C 100%)"
-                    color="white"
+                    colorScheme="gray"
+                    variant="outline"
                     onClick={handleSave}
                     isLoading={saving}
                     loadingText="Saving..."
