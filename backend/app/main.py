@@ -301,6 +301,25 @@ def update_opportunity_status(url: str, status: str, db: Session = Depends(get_d
     db.refresh(opportunity)
     return opportunity
 
+@app.delete("/opportunities/item")
+def delete_opportunity(url: str, db: Session = Depends(get_db)):
+    """Delete a single opportunity for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=400, detail="No active job role found")
+
+    opportunity = db.query(JobOpportunity).filter(
+        JobOpportunity.url == url,
+        JobOpportunity.job_role_id == active_role.id
+    ).first()
+
+    if not opportunity:
+        raise HTTPException(status_code=404, detail="Opportunity not found")
+
+    db.delete(opportunity)
+    db.commit()
+    return {"message": "Opportunity deleted successfully"}
+
 @app.get("/opportunities/active-role")
 def get_active_role(db: Session = Depends(get_db)):
     """Get the currently active job role"""

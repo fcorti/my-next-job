@@ -31,7 +31,7 @@ import {
   Select,
   Checkbox,
 } from '@chakra-ui/react';
-import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
+import { ArrowUpIcon, ArrowDownIcon, DeleteIcon } from '@chakra-ui/icons';
 
 function OpportunitiesPage() {
   const navigate = useNavigate();
@@ -40,7 +40,9 @@ function OpportunitiesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
   const [updatingUrl, setUpdatingUrl] = useState(null);
   const [statusFilters, setStatusFilters] = useState({
@@ -48,6 +50,7 @@ function OpportunitiesPage() {
     Ignore: true,
   });
   const cancelRef = useRef();
+  const deleteCancelRef = useRef();
 
   useEffect(() => {
     loadActiveRole();
@@ -103,6 +106,30 @@ function OpportunitiesPage() {
       setError('Failed to delete opportunities: ' + err.message);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const deleteOpportunity = async () => {
+    if (!deleteConfirm) return;
+
+    setIsDeletingItem(true);
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/opportunities/item?url=${encodeURIComponent(deleteConfirm)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete opportunity');
+      }
+
+      setOpportunities((prev) => prev.filter((opp) => opp.url !== deleteConfirm));
+      setError('');
+      setDeleteConfirm(null);
+    } catch (err) {
+      setError('Failed to delete opportunity: ' + err.message);
+    } finally {
+      setIsDeletingItem(false);
     }
   };
 
@@ -291,6 +318,7 @@ function OpportunitiesPage() {
                               <Th isNumeric>Match Score</Th>
                               <Th>Status</Th>
                               <Th>Last Update</Th>
+                              <Th isNumeric>Actions</Th>
                             </Tr>
                           </Thead>
                           <Tbody>
@@ -337,6 +365,19 @@ function OpportunitiesPage() {
                                     : 'N/A'
                                   }
                                 </Td>
+                                <Td isNumeric>
+                                  <HStack spacing={2} justify="flex-end">
+                                    <Button
+                                      size="sm"
+                                      colorScheme="red"
+                                      variant="outline"
+                                      leftIcon={<DeleteIcon />}
+                                      onClick={() => setDeleteConfirm(opp.url)}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </HStack>
+                                </Td>
                               </Tr>
                             ))}
                           </Tbody>
@@ -379,6 +420,31 @@ function OpportunitiesPage() {
                   </Button>
                   <Button colorScheme="red" onClick={deleteAllOpportunities} ml={3} isLoading={isDeleting} loadingText="Deleting...">
                     Delete All
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+
+          <AlertDialog
+            isOpen={deleteConfirm !== null}
+            leastDestructiveRef={deleteCancelRef}
+            onClose={() => setDeleteConfirm(null)}
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Delete Opportunity
+                </AlertDialogHeader>
+                <AlertDialogBody>
+                  Are you sure you want to delete this opportunity? This action cannot be undone.
+                </AlertDialogBody>
+                <AlertDialogFooter>
+                  <Button ref={deleteCancelRef} onClick={() => setDeleteConfirm(null)}>
+                    Cancel
+                  </Button>
+                  <Button colorScheme="red" onClick={deleteOpportunity} ml={3} isLoading={isDeletingItem} loadingText="Deleting...">
+                    Delete
                   </Button>
                 </AlertDialogFooter>
               </AlertDialogContent>
