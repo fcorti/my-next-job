@@ -39,7 +39,7 @@ function OpportunitiesPage() {
   const [activeRole, setActiveRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [cleanConfirm, setCleanConfirm] = useState(false);
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc');
   const [updatingUrl, setUpdatingUrl] = useState(null);
@@ -98,7 +98,7 @@ function OpportunitiesPage() {
 
       setOpportunities([]);
       setError('');
-      setCleanConfirm(false);
+      setDeleteAllConfirm(false);
     } catch (err) {
       setError('Failed to delete opportunities: ' + err.message);
     } finally {
@@ -203,15 +203,6 @@ function OpportunitiesPage() {
             >
               Search
             </Button>
-            <Button
-              size="sm"
-              colorScheme="gray"
-              variant="outline"
-              onClick={() => setCleanConfirm(true)}
-              isDisabled={opportunities.length === 0}
-            >
-              Clean
-            </Button>
           </HStack>
 
           <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
@@ -222,7 +213,7 @@ function OpportunitiesPage() {
                 </Box>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" align="right">
+                  <HStack justify="flex-end" align="center">
                     <ButtonGroup size="sm" isAttached variant="outline">
                       <Button
                         colorScheme="gray"
@@ -249,9 +240,18 @@ function OpportunitiesPage() {
                     >
                       Add a Job Opportunity
                     </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                      onClick={() => setDeleteAllConfirm(true)}
+                      isDisabled={opportunities.length === 0}
+                    >
+                      Delet All
+                    </Button>
                   </HStack>
 
-                  <HStack justify="flex-start" align="center" spacing={6}>
+                  <HStack justify="flex-end" align="center" spacing={6}>
                     <Text fontSize="sm" color="gray.600" fontWeight="500">
                       Filter by Status:
                     </Text>
@@ -361,9 +361,9 @@ function OpportunitiesPage() {
           </Card>
 
           <AlertDialog
-            isOpen={cleanConfirm}
+            isOpen={deleteAllConfirm}
             leastDestructiveRef={cancelRef}
-            onClose={() => setCleanConfirm(false)}
+            onClose={() => setDeleteAllConfirm(false)}
           >
             <AlertDialogOverlay>
               <AlertDialogContent>
@@ -374,7 +374,7 @@ function OpportunitiesPage() {
                   Are you sure you want to delete all job opportunities? This action cannot be undone.
                 </AlertDialogBody>
                 <AlertDialogFooter>
-                  <Button ref={cancelRef} onClick={() => setCleanConfirm(false)}>
+                  <Button ref={cancelRef} onClick={() => setDeleteAllConfirm(false)}>
                     Cancel
                   </Button>
                   <Button colorScheme="red" onClick={deleteAllOpportunities} ml={3} isLoading={isDeleting} loadingText="Deleting...">

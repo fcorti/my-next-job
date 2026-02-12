@@ -159,7 +159,7 @@ function SkillsPage() {
                 </VStack>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" align="right">
+                  <HStack justify="flex-end" align="center">
                       <ButtonGroup size="sm" isAttached variant="outline">
                         <Button
                           colorScheme="gray"
