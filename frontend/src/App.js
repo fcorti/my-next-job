@@ -3,16 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Box } from '@chakra-ui/react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
-import SkillsPage from './pages/SkillsPage';
-import AddJobRolePage from './pages/AddJobRolePage';
-import ModifyJobRolePage from './pages/ModifyJobRolePage';
-import OpportunitiesPage from './pages/OpportunitiesPage';
-import AddOpportunityPage from './pages/AddOpportunityPage';
-import WatchlistPage from './pages/WatchlistPage';
-import AddCareerPagePage from './pages/AddCareerPagePage';
-import ModifyCareerPagePage from './pages/ModifyCareerPagePage';
-import PipelinePage from './pages/PipelinePage';
-import SearchSessionsPage from './pages/SearchSessionsPage';
+import SkillsPage from './pages/skills/SkillsPage';
+import AddJobRolePage from './pages/skills/AddJobRolePage';
+import ModifyJobRolePage from './pages/skills/ModifyJobRolePage';
+import OpportunitiesPage from './pages/opportunities/OpportunitiesPage';
+import AddOpportunityPage from './pages/opportunities/AddOpportunityPage';
+import WatchlistPage from './pages/opportunities/WatchlistPage';
+import AddCareerPagePage from './pages/opportunities/AddCareerPagePage';
+import ModifyCareerPagePage from './pages/opportunities/ModifyCareerPagePage';
+import PipelinePage from './pages/pipeline/PipelinePage';
+import SearchSessionsPage from './pages/opportunities/SearchSessionsPage';
 
 function App() {
   return (

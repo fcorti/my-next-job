@@ -1,0 +1,33 @@
+[2026-02-12 10:09:24] ================================================================================
+[2026-02-12 10:09:24] JOB SEARCH SESSION STARTED
+[2026-02-12 10:09:24] ================================================================================
+[2026-02-12 10:09:24] Score threshold: 85
+[2026-02-12 10:09:24] Max results: unlimited
+[2026-02-12 10:09:24] Log file: /app/logs/search_session_20260212_100924.log
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Active Role: Senior Full Stack Developer - React & FastAPI
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Search Session ID: 7
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Found 3 URLs in watchlist
+[2026-02-12 10:09:24] --------------------------------------------------------------------------------
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Searching: https://careers.google.com
+[2026-02-12 10:09:24]   Found 1 opportunities above threshold 85
+[2026-02-12 10:09:24]   Saved: https://careers.google.com/job-posting-6463 (score: 90)
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Searching: https://careers.microsoft.com
+[2026-02-12 10:09:24]   Found 1 opportunities above threshold 85
+[2026-02-12 10:09:24]   Saved: https://careers.microsoft.com/job-posting-6901 (score: 90)
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] Searching: https://www.linkedin.com/jobs
+[2026-02-12 10:09:24]   Found 2 opportunities above threshold 85
+[2026-02-12 10:09:24]   Saved: https://www.linkedin.com/jobs/job-posting-1864 (score: 87)
+[2026-02-12 10:09:24]   Saved: https://www.linkedin.com/jobs/job-posting-4337 (score: 95)
+[2026-02-12 10:09:24] 
+[2026-02-12 10:09:24] --------------------------------------------------------------------------------
+[2026-02-12 10:09:24] SEARCH SESSION COMPLETED
+[2026-02-12 10:09:24] Duration: 0.06 seconds
+[2026-02-12 10:09:24] New opportunities found: 4
+[2026-02-12 10:09:24] Session ID: 7
+[2026-02-12 10:09:24] ================================================================================

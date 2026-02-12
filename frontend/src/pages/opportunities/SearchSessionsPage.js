@@ -87,6 +87,12 @@ function SearchSessionsPage() {
     });
   };
 
+  const getLogFileName = (logFilePath) => {
+    if (!logFilePath) return null;
+    // Extract filename from path (e.g., '/logs/search_session_20260212_100150.log' -> 'search_session_20260212_100150.log')
+    return logFilePath.split('/').pop();
+  };
+
   const deleteSession = async () => {
     if (!deleteConfirm) return;
     
@@ -224,11 +230,12 @@ function SearchSessionsPage() {
                           <Td fontSize="sm" color="gray.700">
                             {session.log_file_path ? (
                               <Link
-                                href={session.log_file_path}
+                                href={`${process.env.REACT_APP_API_BASE_URL}/search-sessions/${session.id}/log`}
+                                isExternal
                                 color="blue.600"
                                 _hover={{ textDecoration: 'underline' }}
                               >
-                                View Log
+                                {getLogFileName(session.log_file_path)}
                               </Link>
                             ) : (
                               <Text color="gray.400">N/A</Text>
@@ -264,7 +271,10 @@ function SearchSessionsPage() {
                 💡 About Search Sessions
               </Heading>
               <Text color="gray.600" fontSize="sm">
-                Each search session represents a job search operation performed to find opportunities matching your active job role. Sessions track when searches were started, completed, and what criteria were used. The score threshold indicates the minimum match score required for opportunities to be included in the results.
+                Each search session represents a job search operation performed to find opportunities matching your active job role. Sessions track when searches were started, completed, and what criteria were used. The score threshold indicates the minimum match score required for opportunities to be included in the results.<br/>
+                <br/>
+                Want to launch a search session?<br/>
+                Check out the <Link color="blue.600" onClick={() => navigate('/opportunities')} _hover={{ textDecoration: 'underline' }} as="button">find opportunities</Link> section to learn how to do it.
               </Text>
             </CardBody>
           </Card>

@@ -478,6 +478,31 @@ def delete_search_session(session_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Search session deleted successfully"}
 
+@app.get("/search-sessions/{session_id}/log")
+def get_search_session_log(session_id: int, db: Session = Depends(get_db)):
+    """Get the log file content for a search session"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=400, detail="No active job role found")
+    
+    session = db.query(SearchSession).filter(
+        SearchSession.id == session_id,
+        SearchSession.job_role_id == active_role.id
+    ).first()
+    
+    if not session or not session.log_file_path:
+        raise HTTPException(status_code=404, detail="Log file not found")
+    
+    log_file_path = Path(session.log_file_path)
+    if not log_file_path.exists():
+        raise HTTPException(status_code=404, detail="Log file does not exist")
+    
+    return FileResponse(
+        path=log_file_path,
+        media_type="text/plain",
+        filename=log_file_path.name
+    )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

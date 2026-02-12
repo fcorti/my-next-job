@@ -1,0 +1,36 @@
+[2026-02-12 10:01:50] ================================================================================
+[2026-02-12 10:01:50] JOB SEARCH SESSION STARTED
+[2026-02-12 10:01:50] ================================================================================
+[2026-02-12 10:01:50] Score threshold: 85
+[2026-02-12 10:01:50] Max results: unlimited
+[2026-02-12 10:01:50] Log file: /app/logs/search_session_20260212_100150.log
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Active Role: Senior Full Stack Developer - React & FastAPI
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Search Session ID: 7
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Found 3 URLs in watchlist
+[2026-02-12 10:01:50] --------------------------------------------------------------------------------
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Searching: https://careers.google.com
+[2026-02-12 10:01:50]   Found 3 opportunities above threshold 85
+[2026-02-12 10:01:50]   Saved: https://careers.google.com/job-posting-3709 (score: 87)
+[2026-02-12 10:01:50]   Saved: https://careers.google.com/job-posting-2409 (score: 92)
+[2026-02-12 10:01:50]   Saved: https://careers.google.com/job-posting-7290 (score: 100)
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Searching: https://careers.microsoft.com
+[2026-02-12 10:01:50]   Found 1 opportunities above threshold 85
+[2026-02-12 10:01:50]   Saved: https://careers.microsoft.com/job-posting-4601 (score: 100)
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] Searching: https://www.linkedin.com/jobs
+[2026-02-12 10:01:50]   Found 3 opportunities above threshold 85
+[2026-02-12 10:01:50]   Saved: https://www.linkedin.com/jobs/job-posting-3107 (score: 88)
+[2026-02-12 10:01:50]   Saved: https://www.linkedin.com/jobs/job-posting-3490 (score: 88)
+[2026-02-12 10:01:50]   Saved: https://www.linkedin.com/jobs/job-posting-4712 (score: 89)
+[2026-02-12 10:01:50] 
+[2026-02-12 10:01:50] --------------------------------------------------------------------------------
+[2026-02-12 10:01:50] SEARCH SESSION COMPLETED
+[2026-02-12 10:01:50] Duration: 0.07 seconds
+[2026-02-12 10:01:50] New opportunities found: 7
+[2026-02-12 10:01:50] Session ID: 7
+[2026-02-12 10:01:50] ================================================================================

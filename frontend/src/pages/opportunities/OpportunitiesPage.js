@@ -405,9 +405,12 @@ function OpportunitiesPage() {
                 Use the search feature to find and explore potential roles that match your interests and skills.<br/>
                 To launch a search session, follow the steps below:
                 <ol style={{ marginLeft: '20px', marginTop: '10px' }}>
-                  <li>Open a terminal.</li>
-                  <li>TODO</li>
+                  <li>Open a terminal in the project directory.</li>
+                  <li>Run: <code style={{ background: '#f4f4f4', padding: '2px 6px', borderRadius: '3px', fontFamily: 'monospace' }}>docker compose exec backend python scripts/search_jobs.py --score-threshold 85</code></li>
+                  <li>The script will add new opportunities that match your active role.</li>
+                  <li>Check the search sessions page for logs and results.</li>
                 </ol>
+                You can customize the score threshold (default: 80) and set max results with additional options.
               </Text>
             </CardBody>
           </Card>
