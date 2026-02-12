@@ -4,13 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from pathlib import Path
 import uuid
 import shutil
 from app.database import engine, Base, get_db
-from app.models import JobRole, JobOpportunity, Watchlist
+from app.models import JobRole, JobOpportunity, Watchlist, SearchSession
 
 # Create tables
 Base.metadata.drop_all(bind=engine)
@@ -81,6 +81,24 @@ class WatchlistResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class SearchSessionCreate(BaseModel):
+    job_role_id: int
+    start_datetime: datetime
+    end_datetime: Optional[datetime] = None
+    score_threshold: int
+    log_file_path: Optional[str] = None
+
+class SearchSessionResponse(BaseModel):
+    id: int
+    job_role_id: int
+    start_datetime: datetime
+    end_datetime: Optional[datetime] = None
+    score_threshold: int
+    log_file_path: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 # Initialize sample data
 def init_sample_data(db: Session):
     """Initialize database with sample job roles if table is empty"""
@@ -117,6 +135,49 @@ def init_sample_data(db: Session):
             ]
             for watch in sample_watchlist:
                 db.add(watch)
+            db.commit()
+            
+            # Add sample search sessions for the active role
+            base_time = datetime.now(datetime.now().astimezone().tzinfo)
+            sample_sessions = [
+                SearchSession(
+                    job_role_id=active_role.id, 
+                    start_datetime=base_time - timedelta(days=5, hours=2), 
+                    end_datetime=base_time - timedelta(days=5, hours=1, minutes=45),
+                    score_threshold=85,
+                    log_file_path="/logs/search_session_001.log"
+                ),
+                SearchSession(
+                    job_role_id=active_role.id, 
+                    start_datetime=base_time - timedelta(days=4, hours=3), 
+                    end_datetime=base_time - timedelta(days=4, hours=2, minutes=30),
+                    score_threshold=90,
+                    log_file_path="/logs/search_session_002.log"
+                ),
+                SearchSession(
+                    job_role_id=active_role.id, 
+                    start_datetime=base_time - timedelta(days=3, hours=1), 
+                    end_datetime=None,
+                    score_threshold=80,
+                    log_file_path="/logs/search_session_003.log"
+                ),
+                SearchSession(
+                    job_role_id=active_role.id, 
+                    start_datetime=base_time - timedelta(days=2, hours=4), 
+                    end_datetime=base_time - timedelta(days=2, hours=3, minutes=15),
+                    score_threshold=88,
+                    log_file_path="/logs/search_session_004.log"
+                ),
+                SearchSession(
+                    job_role_id=active_role.id, 
+                    start_datetime=base_time - timedelta(days=1, hours=2), 
+                    end_datetime=base_time - timedelta(days=1, hours=1, minutes=50),
+                    score_threshold=92,
+                    log_file_path=None
+                ),
+            ]
+            for session in sample_sessions:
+                db.add(session)
             db.commit()
 
 def ensure_job_role_storage_column(db: Session):
@@ -372,6 +433,50 @@ def delete_watchlist_entry(url: str, db: Session = Depends(get_db)):
     db.delete(entry)
     db.commit()
     return {"message": "Watchlist entry deleted successfully"}
+
+# Search Session endpoints
+@app.get("/search-sessions", response_model=list[SearchSessionResponse])
+def get_search_sessions(db: Session = Depends(get_db)):
+    """Get all search sessions for the active job role"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        return []
+    sessions = db.query(SearchSession).filter(SearchSession.job_role_id == active_role.id).all()
+    return sessions
+
+@app.post("/search-sessions", response_model=SearchSessionResponse)
+def create_search_session(session: SearchSessionCreate, db: Session = Depends(get_db)):
+    """Create a new search session"""
+    db_session = SearchSession(
+        job_role_id=session.job_role_id,
+        start_datetime=session.start_datetime,
+        end_datetime=session.end_datetime,
+        score_threshold=session.score_threshold,
+        log_file_path=session.log_file_path
+    )
+    db.add(db_session)
+    db.commit()
+    db.refresh(db_session)
+    return db_session
+
+@app.delete("/search-sessions/{session_id}")
+def delete_search_session(session_id: int, db: Session = Depends(get_db)):
+    """Delete a search session"""
+    active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+    if not active_role:
+        raise HTTPException(status_code=400, detail="No active job role found")
+    
+    session = db.query(SearchSession).filter(
+        SearchSession.id == session_id,
+        SearchSession.job_role_id == active_role.id
+    ).first()
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Search session not found")
+    
+    db.delete(session)
+    db.commit()
+    return {"message": "Search session deleted successfully"}
 
 if __name__ == "__main__":
     import uvicorn

@@ -15,6 +15,7 @@ class JobRole(Base):
 
     opportunities = relationship("JobOpportunity", back_populates="job_role", cascade="all, delete-orphan")
     watchlist = relationship("Watchlist", back_populates="job_role", cascade="all, delete-orphan")
+    search_sessions = relationship("SearchSession", back_populates="job_role", cascade="all, delete-orphan")
 
 class JobOpportunity(Base):
     __tablename__ = "job_opportunities"
@@ -37,3 +38,16 @@ class Watchlist(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     job_role = relationship("JobRole", back_populates="watchlist")
+
+class SearchSession(Base):
+    __tablename__ = "search_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    job_role_id = Column(Integer, ForeignKey("job_roles.id", ondelete="CASCADE"), nullable=False)
+    start_datetime = Column(DateTime(timezone=True), nullable=False)
+    end_datetime = Column(DateTime(timezone=True), nullable=True)
+    score_threshold = Column(Integer, nullable=False)
+    log_file_path = Column(String(1024), nullable=True)
+
+    job_role = relationship("JobRole", back_populates="search_sessions")
+

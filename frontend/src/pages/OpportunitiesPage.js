@@ -273,6 +273,7 @@ function OpportunitiesPage() {
                       size="sm"
                       colorScheme="gray"
                       variant="outline"
+                      onClick={() => navigate('/opportunities/search-sessions')}
                     >
                       Search Sessions
                     </Button>

@@ -12,6 +12,7 @@ import WatchlistPage from './pages/WatchlistPage';
 import AddCareerPagePage from './pages/AddCareerPagePage';
 import ModifyCareerPagePage from './pages/ModifyCareerPagePage';
 import PipelinePage from './pages/PipelinePage';
+import SearchSessionsPage from './pages/SearchSessionsPage';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/opportunities/watchlist" element={<WatchlistPage />} />
           <Route path="/opportunities/watchlist/add" element={<AddCareerPagePage />} />
           <Route path="/opportunities/watchlist/modify/:url" element={<ModifyCareerPagePage />} />
+          <Route path="/opportunities/search-sessions" element={<SearchSessionsPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
         </Routes>
       </Box>
