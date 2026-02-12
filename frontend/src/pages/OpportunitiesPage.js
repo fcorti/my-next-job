@@ -214,24 +214,6 @@ function OpportunitiesPage() {
             </Alert>
           )}
 
-          <HStack spacing={3} justify="flex-start" w="full">
-            <Button
-              size="sm"
-              colorScheme="gray"
-              variant="outline"
-              onClick={() => navigate('/opportunities/watchlist')}
-            >
-              Watchlist
-            </Button>
-            <Button
-              size="sm"
-              colorScheme="gray"
-              variant="outline"
-            >
-              Search
-            </Button>
-          </HStack>
-
           <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
             <CardBody>
               {loading ? (
@@ -279,6 +261,24 @@ function OpportunitiesPage() {
                   </HStack>
 
                   <HStack justify="flex-end" align="center" spacing={6}>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                      onClick={() => navigate('/opportunities/watchlist')}
+                    >
+                      Watchlist
+                    </Button>
+                    <Button
+                      size="sm"
+                      colorScheme="gray"
+                      variant="outline"
+                    >
+                      Search Sessions
+                    </Button>
+                  </HStack>
+
+                  <HStack justify="flex-end" align="center" spacing={6}>
                     <Text fontSize="sm" color="gray.600" fontWeight="500">
                       Filter by Status:
                     </Text>
@@ -302,7 +302,7 @@ function OpportunitiesPage() {
 
                   {opportunities.length === 0 ? (
                     <Text textAlign="center" color="gray.500" py={8}>
-                      No opportunities found. Use the Search button to find matching jobs.
+                      No opportunities found. Use the <Link color="blue.600" onClick={() => navigate('/opportunities/watchlist')} _hover={{ textDecoration: 'underline' }} as="button">Watchlist</Link> to manage opportunities.
                     </Text>
                   ) : filteredAndSortedOpportunities.length === 0 ? (
                     <Text textAlign="center" color="gray.500" py={8}>
@@ -396,7 +396,17 @@ function OpportunitiesPage() {
                 💡 About Job Opportunities
               </Heading>
               <Text color="gray.600" fontSize="sm">
-                Each job opportunity represents a potential future job to consider, review, and manage as part of your search.
+                Each job opportunity represents a potential future job to consider, review, and manage as part of your search.<br/>
+                Use the <Link color="blue.600" onClick={() => navigate('/opportunities/watchlist')} _hover={{ textDecoration: 'underline' }} as="button">watchlist</Link> to manage the career pages of companies that you may find interesting.<br/>
+                Check out the <Link color="blue.600" onClick={() => navigate('/opportunities/search-sessions')} _hover={{ textDecoration: 'underline' }} as="button">search sessions</Link> to see the new job opportunities you found that match your profile and preferences.<br/>
+                <br/>
+                Want to find new job opportunities?<br/>
+                Use the search feature to find and explore potential roles that match your interests and skills.<br/>
+                To launch a search session, follow the steps below:
+                <ol style={{ marginLeft: '20px', marginTop: '10px' }}>
+                  <li>Open a terminal.</li>
+                  <li>TODO</li>
+                </ol>
               </Text>
             </CardBody>
           </Card>

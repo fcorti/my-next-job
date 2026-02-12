@@ -153,7 +153,7 @@ function SkillsPage() {
                       color="white"
                       onClick={() => navigate('/skills/new')}
                     >
-                      Add Job Role
+                      Add a Job Role
                     </Button>
                   </HStack>
                 </VStack>
@@ -184,7 +184,7 @@ function SkillsPage() {
                         variant="outline"
                         onClick={() => navigate('/skills/new')}
                       >
-                        Add Job Role
+                        Add a Job Role
                       </Button>
                   </HStack>
 

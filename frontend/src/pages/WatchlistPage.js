@@ -157,30 +157,15 @@ function WatchlistPage() {
             </Alert>
           )}
 
-          <HStack spacing={3} justify="flex-start" w="full">
-            <Button
-                size="sm"
-                colorScheme="gray"
-                variant="outline"
-                onClick={() => navigate('/opportunities')}
-            >
-                Back to Opportunities
-            </Button>
-          </HStack>
-
           <Card bg="white" w="full" borderRadius="lg" boxShadow="lg">
             <CardBody>
               {loading ? (
                 <Box textAlign="center" py={8}>
                   <Spinner color="gray.600" />
                 </Box>
-              ) : watchlist.length === 0 ? (
-                <Text textAlign="center" color="gray.500" py={8}>
-                  No career pages in your watchlist. Add companies you want to monitor.
-                </Text>
               ) : (
                 <VStack spacing={4} align="stretch">
-                  <HStack justify="space-between" align="right">
+                  <HStack justify="flex-end" align="center" spacing={6}>
                     <ButtonGroup size="sm" isAttached variant="outline">
                       <Button
                         colorScheme="gray"
@@ -205,61 +190,79 @@ function WatchlistPage() {
                      variant="outline"
                      onClick={() => navigate('/opportunities/watchlist/add')}
                     >
-                        Add Career Page
+                        Add a Career Page
                     </Button>
                   </HStack>
-                  <TableContainer>
-                  <Table variant="striped" colorScheme="gray">
-                    <Thead bg="gray.100">
-                      <Tr>
-                        <Th>URL</Th>
-                        <Th>Last Visit</Th>
-                        <Th>Actions</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {sortedWatchlist.map((entry) => (
-                        <Tr key={entry.url}>
-                          <Td>
-                            <Link
-                              href={entry.url}
-                              isExternal
-                              color="blue.600"
-                              _hover={{ textDecoration: 'underline' }}
-                            >
-                              {entry.url}
-                            </Link>
-                          </Td>
-                          <Td color="gray.700">
-                            {formatDate(entry.last_visit)}
-                          </Td>
-                          <Td>
-                            <HStack spacing={2}>
-                              <Button
-                                size="sm"
-                                colorScheme="gray"
-                                variant="outline"
-                                leftIcon={<EditIcon />}
-                                onClick={() => handleModify(entry.url)}
-                              >
-                                Modify
-                              </Button>
-                              <Button
-                                size="sm"
-                                colorScheme="red"
-                                variant="outline"
-                                leftIcon={<DeleteIcon />}
-                                onClick={() => setDeleteConfirm(entry.url)}
-                              >
-                                Delete
-                              </Button>
-                            </HStack>
-                          </Td>
+
+                  <HStack justify="flex-end" align="center" spacing={6}>
+                    <Button
+                        size="sm"
+                        colorScheme="gray"
+                        variant="outline"
+                        onClick={() => navigate('/opportunities')}
+                    >
+                        Back to Find Opportunities
+                    </Button>
+                  </HStack>
+
+                  { watchlist.length === 0 ? (
+                    <Text textAlign="center" color="gray.500" py={8}>
+                    No career pages in your watchlist. Add companies you want to monitor.
+                  </Text>
+                  ) : (
+                    <TableContainer>
+                    <Table variant="striped" colorScheme="gray">
+                      <Thead bg="gray.100">
+                        <Tr>
+                          <Th>URL</Th>
+                          <Th>Last Visit</Th>
+                          <Th>Actions</Th>
                         </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </TableContainer>
+                      </Thead>
+                      <Tbody>
+                        {sortedWatchlist.map((entry) => (
+                          <Tr key={entry.url}>
+                            <Td>
+                              <Link
+                                href={entry.url}
+                                isExternal
+                                color="blue.600"
+                                _hover={{ textDecoration: 'underline' }}
+                              >
+                                {entry.url}
+                              </Link>
+                            </Td>
+                            <Td color="gray.700">
+                              {formatDate(entry.last_visit)}
+                            </Td>
+                            <Td>
+                              <HStack spacing={2}>
+                                <Button
+                                  size="sm"
+                                  colorScheme="gray"
+                                  variant="outline"
+                                  leftIcon={<EditIcon />}
+                                  onClick={() => handleModify(entry.url)}
+                                >
+                                  Modify
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  colorScheme="red"
+                                  variant="outline"
+                                  leftIcon={<DeleteIcon />}
+                                  onClick={() => setDeleteConfirm(entry.url)}
+                                >
+                                  Delete
+                                </Button>
+                              </HStack>
+                            </Td>
+                          </Tr>
+                        ))}
+                      </Tbody>
+                    </Table>
+                  </TableContainer>
+                  )}
                 </VStack>
               )}
             </CardBody>
