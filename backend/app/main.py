@@ -147,34 +147,6 @@ def init_sample_data(db: Session):
                     score_threshold=85,
                     log_file_path="/logs/search_session_001.log"
                 ),
-                SearchSession(
-                    job_role_id=active_role.id, 
-                    start_datetime=base_time - timedelta(days=4, hours=3), 
-                    end_datetime=base_time - timedelta(days=4, hours=2, minutes=30),
-                    score_threshold=90,
-                    log_file_path="/logs/search_session_002.log"
-                ),
-                SearchSession(
-                    job_role_id=active_role.id, 
-                    start_datetime=base_time - timedelta(days=3, hours=1), 
-                    end_datetime=None,
-                    score_threshold=80,
-                    log_file_path="/logs/search_session_003.log"
-                ),
-                SearchSession(
-                    job_role_id=active_role.id, 
-                    start_datetime=base_time - timedelta(days=2, hours=4), 
-                    end_datetime=base_time - timedelta(days=2, hours=3, minutes=15),
-                    score_threshold=88,
-                    log_file_path="/logs/search_session_004.log"
-                ),
-                SearchSession(
-                    job_role_id=active_role.id, 
-                    start_datetime=base_time - timedelta(days=1, hours=2), 
-                    end_datetime=base_time - timedelta(days=1, hours=1, minutes=50),
-                    score_threshold=92,
-                    log_file_path=None
-                ),
             ]
             for session in sample_sessions:
                 db.add(session)
