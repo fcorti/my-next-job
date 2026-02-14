@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Select,
   Button,
   VStack,
   HStack,
@@ -24,6 +25,8 @@ function ModifyCareerPagePage() {
   const originalUrl = decodeURIComponent(encodedUrl);
   
   const [newUrl, setNewUrl] = useState('');
+  const [pageType, setPageType] = useState('');
+  const [originalLastVisit, setOriginalLastVisit] = useState(null);
   const [activeRoleId, setActiveRoleId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -46,6 +49,19 @@ function ModifyCareerPagePage() {
       } else {
         setActiveRoleId(data.id);
         setNewUrl(originalUrl);
+
+        const watchlistResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/watchlist`);
+        if (!watchlistResponse.ok) {
+          throw new Error('Failed to load watchlist entry');
+        }
+        const watchlistData = await watchlistResponse.json();
+        const currentEntry = watchlistData.find((entry) => entry.url === originalUrl);
+        if (!currentEntry) {
+          throw new Error('Watchlist entry not found');
+        }
+
+        setPageType(currentEntry.page_type || '');
+        setOriginalLastVisit(currentEntry.last_visit || null);
       }
     } catch (err) {
       setError('Failed to load data: ' + err.message);
@@ -92,7 +108,8 @@ function ModifyCareerPagePage() {
         body: JSON.stringify({
           url: newUrl.trim(),
           job_role_id: activeRoleId,
-          last_visit: null,
+          last_visit: originalLastVisit,
+          page_type: pageType || null,
         }),
       });
 
@@ -107,7 +124,8 @@ function ModifyCareerPagePage() {
           body: JSON.stringify({
             url: originalUrl,
             job_role_id: activeRoleId,
-            last_visit: null,
+            last_visit: originalLastVisit,
+            page_type: pageType || null,
           }),
         });
         throw new Error(errorData.detail || 'Failed to update career page');
@@ -172,6 +190,20 @@ function ModifyCareerPagePage() {
                       _hover={{ bg: 'gray.100' }}
                       _focus={{ bg: 'white', borderColor: '#2D3748' }}
                     />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel color="gray.700">Page Type</FormLabel>
+                    <Select
+                      value={pageType}
+                      onChange={(e) => setPageType(e.target.value)}
+                      bg="gray.50"
+                      _hover={{ bg: 'gray.100' }}
+                      _focus={{ bg: 'white', borderColor: '#2D3748' }}
+                    >
+                      <option value="">Default</option>
+                      <option value="ashbyhq">Ashbyhq</option>
+                    </Select>
                   </FormControl>
 
                   <HStack spacing={3} w="full" justify="flex-end">

@@ -88,6 +88,12 @@ function WatchlistPage() {
     });
   };
 
+  const formatPageType = (pageType) => {
+    if (!pageType) return 'Default';
+    if (pageType === 'ashbyhq') return 'Ashbyhq';
+    return pageType;
+  };
+
   const deleteCareerPage = async () => {
     if (!deleteConfirm) return;
     
@@ -215,6 +221,7 @@ function WatchlistPage() {
                       <Thead bg="gray.100">
                         <Tr>
                           <Th>URL</Th>
+                          <Th>Page Type</Th>
                           <Th>Last Visit</Th>
                           <Th>Actions</Th>
                         </Tr>
@@ -231,6 +238,9 @@ function WatchlistPage() {
                               >
                                 {entry.url}
                               </Link>
+                            </Td>
+                            <Td color="gray.700">
+                              {formatPageType(entry.page_type)}
                             </Td>
                             <Td color="gray.700">
                               {formatDate(entry.last_visit)}

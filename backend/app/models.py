@@ -35,6 +35,7 @@ class Watchlist(Base):
     url = Column(String(2048), primary_key=True)
     job_role_id = Column(Integer, ForeignKey("job_roles.id", ondelete="CASCADE"), primary_key=True, nullable=False)
     last_visit = Column(DateTime(timezone=True), nullable=True)
+    page_type = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     job_role = relationship("JobRole", back_populates="watchlist")

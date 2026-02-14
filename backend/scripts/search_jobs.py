@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.database import SessionLocal
 from app.models import JobRole, SearchSession
-from searcher import JobSearcher
+from searcher import JobSearcher, Logger
 
 
 @click.command()
@@ -29,7 +29,9 @@ from searcher import JobSearcher
               help='Maximum number of job descriptions to process (default: unlimited)')
 @click.option('--log-dir', '-l', default='logs',
               help='Directory to store log files (default: logs)')
-def search_jobs(score_threshold, max_opportunities, max_job_descriptions, log_dir):
+@click.option('--verbose', '-v', default='false', type=bool,
+              help='Enable verbose logging (default: false)')
+def search_jobs(score_threshold, max_opportunities, max_job_descriptions, log_dir, verbose):
 
     start_time = datetime.now()
     
@@ -40,62 +42,67 @@ def search_jobs(score_threshold, max_opportunities, max_job_descriptions, log_di
     # Create log file
     log_filename = f"search_session_{start_time.strftime('%Y%m%d_%H%M%S')}.log"
     log_path = log_dir_path / log_filename
+    logger = Logger(log_path, verbose)
+    try:
+        logger.create_file()
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        return
     
     db = SessionLocal()
     session_id = None
     
     try:
-        with open(log_path, 'w') as log_file:
-            searcher = JobSearcher(db, log_file, score_threshold, max_opportunities, max_job_descriptions)
+        searcher = JobSearcher(db, logger, score_threshold, max_opportunities, max_job_descriptions)
             
-            searcher.log("=" * 80)
-            searcher.log("JOB SEARCH SESSION STARTED")
-            searcher.log("=" * 80)
-            searcher.log(f"Score threshold: {score_threshold}")
-            searcher.log(f"Max opportunities: {max_opportunities if max_opportunities else 'unlimited'}")
-            searcher.log(f"Max job descriptions: {max_job_descriptions if max_job_descriptions else 'unlimited'}")
-            searcher.log(f"Log file: {log_path}")
+        searcher.logger.write("=" * 80)
+        searcher.logger.write("JOB SEARCH SESSION STARTED")
+        searcher.logger.write("=" * 80)
+        searcher.logger.write(f"Score threshold: {score_threshold}")
+        searcher.logger.write(f"Max opportunities: {max_opportunities if max_opportunities else 'unlimited'}")
+        searcher.logger.write(f"Max job descriptions: {max_job_descriptions if max_job_descriptions else 'unlimited'}")
+        searcher.logger.write(f"Log file: {log_path}")
             
-            # Get active role
-            active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
-            if not active_role:
-                searcher.log("ERROR: No active job role found!")
-                return
-                        
-            searcher.log(f"Active Role: {active_role.name}")
+        # Get active role
+        active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
+        if not active_role:
+            searcher.logger.write("ERROR: No active job role found!")
+            return
+                    
+        searcher.logger.write(f"Active Role: {active_role.name}")
             
-            # Create search session record
-            search_session = SearchSession(
-                job_role_id=active_role.id,
-                start_datetime=start_time,
-                score_threshold=score_threshold,
-                log_file_path=str(log_path)
-            )
-            db.add(search_session)
-            db.commit()
-            db.refresh(search_session)
-            session_id = search_session.id
-            
-            searcher.log(f"Search Session ID: {session_id}")
+        # Create search session record
+        search_session = SearchSession(
+            job_role_id=active_role.id,
+            start_datetime=start_time,
+            score_threshold=score_threshold,
+            log_file_path=str(log_path)
+        )
+        db.add(search_session)
+        db.commit()
+        db.refresh(search_session)
+        session_id = search_session.id
+        
+        searcher.logger.write(f"Search Session ID: {session_id}")
 
-            searcher.opportunities_found = 0
-            searcher.opportunities_saved = 0
-            
-            searcher.check_watchlist(active_role.id)
-            
-            # Update search session with end time
-            end_time = datetime.now()
-            search_session.end_datetime = end_time
-            db.commit()
+        searcher.opportunities_found = 0
+        searcher.opportunities_saved = 0
 
-            duration = (end_time - start_time).total_seconds()
+        searcher.check_watchlist(active_role.id)
+        
+        # Update search session with end time
+        end_time = datetime.now()
+        search_session.end_datetime = end_time
+        db.commit()
 
-            searcher.log("-" * 80)
-            searcher.log("SEARCH SESSION COMPLETED")
-            searcher.log(f"Duration: {duration:.2f} seconds")
-            searcher.log(f"New opportunities found: {searcher.opportunities_found}")
-            searcher.log(f"Session ID: {session_id}")
-            searcher.log("=" * 80)
+        duration = (end_time - start_time).total_seconds()
+
+        searcher.logger.write("-" * 80)
+        searcher.logger.write("SEARCH SESSION COMPLETED")
+        searcher.logger.write(f"Duration: {duration:.2f} seconds")
+        searcher.logger.write(f"New opportunities found: {searcher.opportunities_found}")
+        searcher.logger.write(f"Session ID: {session_id}")
+        searcher.logger.write("=" * 80)
             
     except Exception as e:
         print(f"ERROR: {str(e)}")

@@ -71,11 +71,13 @@ class WatchlistCreate(BaseModel):
     url: str
     job_role_id: int
     last_visit: Optional[datetime] = None
+    page_type: Optional[str] = None
 
 class WatchlistResponse(BaseModel):
     url: str
     job_role_id: int
     last_visit: Optional[datetime] = None
+    page_type: Optional[str] = None
     created_at: datetime
 
     class Config:
@@ -106,10 +108,10 @@ def init_sample_data(db: Session):
     if existing_roles == 0:
         sample_roles = [
             JobRole(name="Senior Full Stack Developer - React & FastAPI", cv_filename="cv_senior_fullstack.pdf", cv_storage_name="cv_senior_fullstack.pdf", is_active=True),
-            JobRole(name="Backend Engineer - Python & PostgreSQL", cv_filename="cv_backend_python.pdf", cv_storage_name="cv_backend_python.pdf", is_active=False),
-            JobRole(name="Frontend Developer - React & TypeScript", cv_filename="cv_frontend_react.pdf", cv_storage_name="cv_frontend_react.pdf", is_active=False),
-            JobRole(name="DevOps Engineer - Docker & Kubernetes", cv_filename="cv_devops.pdf", cv_storage_name="cv_devops.pdf", is_active=False),
-            JobRole(name="Data Engineer - ETL & Analytics", cv_filename="cv_data_engineer.pdf", cv_storage_name="cv_data_engineer.pdf", is_active=False),
+#            JobRole(name="Backend Engineer - Python & PostgreSQL", cv_filename="cv_backend_python.pdf", cv_storage_name="cv_backend_python.pdf", is_active=False),
+#            JobRole(name="Frontend Developer - React & TypeScript", cv_filename="cv_frontend_react.pdf", cv_storage_name="cv_frontend_react.pdf", is_active=False),
+#            JobRole(name="DevOps Engineer - Docker & Kubernetes", cv_filename="cv_devops.pdf", cv_storage_name="cv_devops.pdf", is_active=False),
+#            JobRole(name="Data Engineer - ETL & Analytics", cv_filename="cv_data_engineer.pdf", cv_storage_name="cv_data_engineer.pdf", is_active=False),
         ]
         for role in sample_roles:
             db.add(role)
@@ -119,9 +121,9 @@ def init_sample_data(db: Session):
         active_role = db.query(JobRole).filter(JobRole.is_active == True).first()
         if active_role:
             sample_opportunities = [
-                JobOpportunity(url="https://example.com/job/fullstack-dev-1", job_role_id=active_role.id, score=95, status="New"),
-                JobOpportunity(url="https://example.com/job/fullstack-dev-2", job_role_id=active_role.id, score=88, status="New"),
-                JobOpportunity(url="https://example.com/job/fullstack-senior-3", job_role_id=active_role.id, score=92, status="New"),
+#                JobOpportunity(url="https://example.com/job/fullstack-dev-1", job_role_id=active_role.id, score=95, status="New"),
+#                JobOpportunity(url="https://example.com/job/fullstack-dev-2", job_role_id=active_role.id, score=88, status="New"),
+#                JobOpportunity(url="https://example.com/job/fullstack-senior-3", job_role_id=active_role.id, score=92, status="New"),
             ]
             for opp in sample_opportunities:
                 db.add(opp)
@@ -129,9 +131,10 @@ def init_sample_data(db: Session):
             
             # Add sample watchlist for the active role
             sample_watchlist = [
-                Watchlist(url="https://careers.google.com", job_role_id=active_role.id),
-                Watchlist(url="https://careers.microsoft.com", job_role_id=active_role.id),
-                Watchlist(url="https://www.linkedin.com/jobs", job_role_id=active_role.id),
+                Watchlist(url="https://jobs.ashbyhq.com/kong", job_role_id=active_role.id, page_type="ashbyhq"),
+#                Watchlist(url="https://careers.google.com", job_role_id=active_role.id),
+#                Watchlist(url="https://careers.microsoft.com", job_role_id=active_role.id),
+#                Watchlist(url="https://www.linkedin.com/jobs", job_role_id=active_role.id),
             ]
             for watch in sample_watchlist:
                 db.add(watch)
@@ -140,13 +143,6 @@ def init_sample_data(db: Session):
             # Add sample search sessions for the active role
             base_time = datetime.now(datetime.now().astimezone().tzinfo)
             sample_sessions = [
-                SearchSession(
-                    job_role_id=active_role.id, 
-                    start_datetime=base_time - timedelta(days=5, hours=2), 
-                    end_datetime=base_time - timedelta(days=5, hours=1, minutes=45),
-                    score_threshold=85,
-                    log_file_path="/logs/search_session_001.log"
-                ),
             ]
             for session in sample_sessions:
                 db.add(session)
@@ -374,6 +370,9 @@ def get_watchlist(db: Session = Depends(get_db)):
 @app.post("/watchlist", response_model=WatchlistResponse)
 def create_watchlist_entry(watch: WatchlistCreate, db: Session = Depends(get_db)):
     """Create a new watchlist entry"""
+    if watch.page_type not in [None, "ashbyhq"]:
+        raise HTTPException(status_code=400, detail="page_type must be null or 'ashbyhq'")
+
     # Check if entry already exists
     existing = db.query(Watchlist).filter(
         Watchlist.url == watch.url,
@@ -382,7 +381,12 @@ def create_watchlist_entry(watch: WatchlistCreate, db: Session = Depends(get_db)
     if existing:
         raise HTTPException(status_code=400, detail="Watchlist entry already exists for this job role")
     
-    db_watch = Watchlist(url=watch.url, job_role_id=watch.job_role_id, last_visit=watch.last_visit)
+    db_watch = Watchlist(
+        url=watch.url,
+        job_role_id=watch.job_role_id,
+        last_visit=watch.last_visit,
+        page_type=watch.page_type,
+    )
     db.add(db_watch)
     db.commit()
     db.refresh(db_watch)
