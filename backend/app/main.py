@@ -107,7 +107,7 @@ def init_sample_data(db: Session):
     existing_roles = db.query(JobRole).count()
     if existing_roles == 0:
         sample_roles = [
-            JobRole(name="Senior Full Stack Developer - React & FastAPI", cv_filename="cv_senior_fullstack.pdf", cv_storage_name="cv_senior_fullstack.pdf", is_active=True),
+            JobRole(name="Senior Product Manager", cv_filename="cv_senior_fullstack.pdf", cv_storage_name="cv_senior_fullstack.pdf", is_active=True),
 #            JobRole(name="Backend Engineer - Python & PostgreSQL", cv_filename="cv_backend_python.pdf", cv_storage_name="cv_backend_python.pdf", is_active=False),
 #            JobRole(name="Frontend Developer - React & TypeScript", cv_filename="cv_frontend_react.pdf", cv_storage_name="cv_frontend_react.pdf", is_active=False),
 #            JobRole(name="DevOps Engineer - Docker & Kubernetes", cv_filename="cv_devops.pdf", cv_storage_name="cv_devops.pdf", is_active=False),

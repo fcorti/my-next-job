@@ -1,59 +1,74 @@
-"""ContentAnalyser class for extracting job descriptions using AI"""
-
+import re
 import requests
-import json
-from typing import List, Dict
-from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 
 class ContentAnalyser:
     
-    def __init__(self, logger, inference_url, timeout, model_name, max_chars_per_chunk):
+    def __init__(self, logger, inference_url, timeout, model_name, max_characters_for_career_page_analysis):
         self.logger = logger
         self.headers = {"Content-Type": "application/json"}
         self.inference_url = inference_url
         self.model_name = model_name
-        self.max_chars_per_chunk = max_chars_per_chunk
         self.timeout = timeout
-
-    def _extract_job_descriptions_from_ashbyhq(self, career_page) -> List[Dict[str, str]]:
-
-        # Preparing the base url.
-        url_parts = urlsplit(career_page.url)
-        base_url = f"{url_parts.scheme}://{url_parts.netloc}"
-
-        soup = BeautifulSoup(career_page.html_content, 'html.parser')
-
-        if self.logger.verbose:
-            self.logger.write(f"  Found {len(soup.find_all('a', href=True))} links into the career page")
-
-        job_descriptions = []        
-        for anchor in soup.find_all('a', href=True):
-            if anchor['href'].startswith("/"):
-                job_description = {
-                    'url': base_url + anchor['href'],
-                    'title': anchor.get_text(strip=True)
-                }
-                job_descriptions.append(job_description)
-        
-        if self.logger.verbose:
-            self.logger.write(f"  Extracted {len(job_descriptions)} job descriptions from the page")
-
-        return job_descriptions
+        self.max_characters_for_career_page_analysis = max_characters_for_career_page_analysis
     
-    def _call_inference(self,chat_request="Hi") -> dict:
+    def _get_inference_json(self,type=None,chat_request="Hi") -> dict:
+
+        inference_json = {
+            "model": self.model_name,
+            "messages": [
+                {"role": "user", "content": chat_request}
+            ]
+        }
+
+        match type:
+
+            case "job_name":
+   
+                # Tuned for Mistral 7B-Q4 model.
+
+                inference_json["messages"].insert(0, {
+                    "role": "system",
+                    "content": (
+                        "You are a professional Technical Recruiter."
+                        "Your task is to compare a Job Description with a Target Job Role."
+                        "You must ALWAYS start your response with 'SCORE: [number]' followed by a brief 'Analysis'."
+                )})
+
+                inference_json["temperature"] = 0.2 # Use a moderate temperature to allow for some variability in the responses while still keeping them focused and relevant to the task of scoring job descriptions.
+                inference_json["top_p"] = 0.95 # Use nucleus sampling to allow for more diverse responses while still focusing on the most relevant ones.
+                inference_json["max_tokens"] = 300 # Limit the response to a reasonable length since we only need a score and maybe a brief analysis, not a long explanation.
+                inference_json["cache_prompt"] = True # Cache the prompt to improve performance for similar requests in the future.
+                inference_json["stop"] = ["[/INST]", "Job Description:", "Target Job Role:"] # Stop tokens to prevent the model from generating unwanted text after the score. 
+   
+            case "full_job_description":
+
+                # Tuned for Mistral 7B-Q4 model.
+
+                inference_json["messages"].insert(0, {
+                    "role": "system",
+                    "content": (
+                        "You are a professional Technical Recruiter."
+                        "Compare Target Role vs Job Description."
+                        "Focus ONLY on Hard Skills & Experience."
+                        "Ignore benefits and company info."
+                        "You must ALWAYS start your response with 'SCORE: [number]' followed by a brief 'Analysis'."
+                )})
+
+                inference_json["temperature"] = 0.0 # Use a low temperature to make the model's responses more deterministic and focused on the specific task of scoring the job description based on its content, which is important for consistency in scoring across different job descriptions.
+                inference_json["top_p"] = 0.95 # Use nucleus sampling to allow for more diverse responses while still focusing on the most relevant ones.
+                inference_json["max_tokens"] = 300 # Limit the response to a reasonable length since we only need a score and maybe a brief analysis, not a long explanation.
+                inference_json["cache_prompt"] = True # Cache the prompt to improve performance for similar requests in the future.
+                inference_json["stop"] = ["[/INST]", "Job Description:", "Target Job Role:"] # Stop tokens to prevent the model from generating unwanted text after the score. 
+
+        return inference_json
+
+    def _call_inference(self,type=None, chat_request="Hi") -> dict:
 
         response = requests.post(
             self.inference_url,
             headers=self.headers,
-            json={
-            "model": self.model_name,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": chat_request
-                }
-            ]},
+            json=self._get_inference_json(type=type, chat_request=chat_request),
             timeout=self.timeout
         )
         
@@ -62,34 +77,84 @@ class ContentAnalyser:
 
         return response.json()
 
-    def _chunk_html(self, html_content, max_chars):
-        if not html_content:
-            return []
+    def get_score_for_job_name(self, job_description, active_job_role) -> int:
+        # Calculate the score based on the job descriptions only.
 
-        chunks = []
-        start = 0
-        length = len(html_content)
-        while start < length:
-            end = min(start + max_chars, length)
-            chunks.append(html_content[start:end])
-            start = end
+        chat_request = (
+            f"[INST] Target Job Role: {active_job_role.name}\n"
+            "\n"
+            f"Job Description: {job_description.description}\n"
+            "\n"
+            "EVALUATION STEPS:\n"
+            "1. Extract core requirements.\n"
+            "2. Compare with Target Role.\n"
+            "3. List 2-3 brief bullet points of gaps.\n"
+            "\n"
+            "FORMAT:\n"
+            "SCORE: <0-100>\n"
+            "Analysis: <brief_explanation>\n"
+            "[/INST] SCORE: " # The space after SCORE: is intentional to help the model understand that the score should come immediately after it without any other text in between.
+        )
 
-        return chunks
+        response = self._call_inference(type="job_name", chat_request=chat_request)
 
-    def get_job_descriptions_from_career_page(self, career_page) -> List[Dict[str, str]]:
+        # Cleaning the response to extract only the score.
+        response_content = response.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+        score_str = response_content.upper().strip()
+        score_str = re.search(r"(?:SCORE:\s*)?(\d+)", score_str)
+        try:
+            score = int(score_str.group(1))
+        except (ValueError, AttributeError):
+            self.logger.write(f"WARNING: Inference's answer did not contain a valid score. Skipping the job opportunity.")
+            score = 0
 
-        job_descriptions = []
+        if self.logger.verbose:
+            self.logger.write(f"Inference API response: {response}")
+            self.logger.write(f"Extracted score: {score}")
 
-        match career_page.page_type:
+        return score
 
-                case "ashbyhq":
+    def get_score_for_full_job_description(self, job_description, active_job_role) -> int:
+        # Calculate the score based on the full job description.
 
-                    if self.logger.verbose:
-                        self.logger.write("  Analyzing AshbyHQ career page content to extract job descriptions")
-                    
-                    job_descriptions = self._extract_job_descriptions_from_ashbyhq(career_page)
+        if not job_description.html_content:
+            raise ValueError("html_content for job_description is required for calculating score based on full job description")
 
-                case _:
-                    self.logger.write(f"  No specific content analysis logic for page type '{career_page.page_type}', skipping the job description extraction") 
+        # Cleaning the HTML content to extract only the text for better scoring.
+        text_content = BeautifulSoup(job_description.html_content, "html.parser").get_text(separator=" ", strip=True)
+        text_content = text_content[:self.max_characters_for_career_page_analysis] # Truncate the text content to avoid exeeding the 4kb of context.
 
-        return job_descriptions
+        chat_request = (
+            f"[INST] You are a professional Technical Recruiter."
+            "Analyze the match between the provided Job Description and the Target Job Role."
+            "Start your response with the score."
+            "Task: Score match 0-100 and list 2-3 main gaps.\n"
+            "\n"
+            "FORMAT:\n"
+            "SCORE: <0-100>\n"
+            "Analysis: <gaps>\n"
+            "\n"
+            f"Target Job Role: {active_job_role.name}\n"
+            "\n"
+            f"Job Description: {text_content}\n"
+            "\n"
+            "[/INST] SCORE: " # The space after SCORE: is intentional to help the model understand that the score should come immediately after it without any other text in between.
+        )
+
+        response = self._call_inference(type="full_job_description", chat_request=chat_request)
+
+        # Cleaning the response to extract only the score.
+        response_content = response.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+        score_str = response_content.upper().strip()
+        score_str = re.search(r"(?:SCORE:\s*)?(\d+)", score_str)
+        try:
+            score = int(score_str.group(1))
+        except (ValueError, AttributeError):
+            self.logger.write(f"WARNING: Inference's answer did not contain a valid score. Skipping the job opportunity.")
+            score = 0;
+
+        if self.logger.verbose:
+            self.logger.write(f"Inference API response: {response}")
+            self.logger.write(f"Extracted score: {score}")
+
+        return score
