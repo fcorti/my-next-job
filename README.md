@@ -73,9 +73,19 @@ Each step is accessible via the navigation bar at the top of the application, wi
    cd my-next-job
    ```
 
-2. **Start the application**:
+2. **Create your environment file**:
+  ```bash
+  cp .env.example .env
+  ```
+
+  On Windows PowerShell:
+  ```powershell
+  Copy-Item .env.example .env
+  ```
+
+3. **Start the application**:
    ```bash
-   docker-compose up --build
+  docker compose up --build
    ```
 
    This command will:
@@ -84,7 +94,7 @@ Each step is accessible via the navigation bar at the top of the application, wi
    - Start the FastAPI backend
    - Start the frontend HTTP server
 
-3. **Access the application**:
+4. **Access the application**:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
    - API Documentation: http://localhost:8000/docs
@@ -111,20 +121,43 @@ Each step is accessible via the navigation bar at the top of the application, wi
 Press `Ctrl + C` in the terminal where Docker Compose is running, or run:
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 To also remove volumes (database data):
 
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Development Mode
 
-The React frontend also runs in development mode with hot-reload. Changes to files in the `./frontend-react/src` directory will automatically refresh the browser.
+The React frontend also runs in development mode with hot-reload. Changes to files in the `./frontend/src` directory will automatically refresh the browser.
 
 The backend runs in development mode with hot-reload. Changes to files in the `./backend` directory will automatically restart the server.
+
+## Job Search Script
+
+The backend includes a job search runner at `backend/scripts/search_jobs.py`.
+
+Run it from the project root:
+
+```bash
+docker compose exec backend python scripts/search_jobs.py --score-threshold 80
+```
+
+Common options:
+- `--score-threshold` / `-s`: Minimum score threshold (default: `80`)
+- `--max-opportunities` / `-o`: Max opportunities to return
+- `--max-job-descriptions` / `-d`: Max job descriptions to process
+- `--log-dir` / `-l`: Log output directory (default: `logs`)
+- `--verbose` / `-v`: Enable verbose logging (`true`/`false`)
+
+Example:
+
+```bash
+docker compose exec backend python scripts/search_jobs.py --score-threshold 50 --verbose false
+```
 
 ## Database Configuration
 
@@ -169,7 +202,7 @@ If ports 3000, 8000, or 5432 are already in use, you can modify the port mapping
 ### Database Connection Issues
 Ensure the DB service is healthy by checking:
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 The backend will wait for the database to be ready before starting.
@@ -177,7 +210,7 @@ The backend will wait for the database to be ready before starting.
 ### Clear Everything
 To completely reset the application:
 ```bash
-docker-compose down -v
+docker compose down -v
 docker system prune -a
 ```
 
